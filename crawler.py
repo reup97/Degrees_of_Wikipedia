@@ -1,7 +1,7 @@
 '''
 a crawler used for parsing pages in wikipedia
 '''
-
+import re
 from urllib.error import URLError
 from urllib.request import urlopen, Request
 from bs4 import BeautifulSoup
@@ -77,19 +77,20 @@ class Crawler(object):
                     and not link_tag['href'].startswith('/wiki/File:')\
                     and not link_tag['href'].startswith('/wiki/Help:')\
                     and not link_tag['href'].startswith('/wiki/International_Standard_Book_Number')\
-                    and not link_tag['href'].startswith('/wiki/Special:')
+                    and not link_tag['href'].startswith('/wiki/Special:')\
+                    and not link_tag['href'].startswith('/wiki/Wikipedia:')
             return cond
 
         assert (self._soup is not None), 'self._soup is None'
 
-        all_link_tags = self._soup.find(id='bodyContent').find_all('a')
+        all_link_tags = self._soup.find(id='bodyContent').find_all('a', href=re.compile("^(/wiki/)((?!:).)*$"))
 
+        # links = [link_tag.get_text() for link_tag in all_link_tags
+        #          if filt_cond(link_tag)]
         links = [link_tag.get_text() for link_tag in all_link_tags
-                 if filt_cond(link_tag)]
+                 if 'href' in link_tag.attrs and link_tag.get_text() != 'ISBN']
         if debug:
-            debug_log('all valid neighbours:')
-            for link in links:
-                debug_log(link)
+            debug_log('number of links: {}'.format(len(links)))
         return links
 
 
@@ -108,8 +109,10 @@ class Crawler(object):
             if debug:
                 debug_log(e)
             return None
-        except:
+        except Exception as e:
             log('iternal error detected')
+            if debug:
+                debug_log(e)
             return None
         else:
             return title
