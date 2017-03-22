@@ -75,18 +75,18 @@ class Crawler(object):
 
         '''
 
-        def filt_cond(link_tag):
-            '''
-            conditions for filtering good links
-            '''
-            cond = link_tag['href'].startswith('/wiki/')\
-                    and not link_tag['href'].startswith('/wiki/Category:')\
-                    and not link_tag['href'].startswith('/wiki/File:')\
-                    and not link_tag['href'].startswith('/wiki/Help:')\
-                    and not link_tag['href'].startswith('/wiki/International_Standard_Book_Number')\
-                    and not link_tag['href'].startswith('/wiki/Special:')\
-                    and not link_tag['href'].startswith('/wiki/Wikipedia:')
-            return cond
+        # def filt_cond(link_tag):
+        #     '''
+        #     conditions for filtering good links
+        #     '''
+        #     cond = link_tag['href'].startswith('/wiki/')\
+        #             and not link_tag['href'].startswith('/wiki/Category:')\
+        #             and not link_tag['href'].startswith('/wiki/File:')\
+        #             and not link_tag['href'].startswith('/wiki/Help:')\
+        #             and not link_tag['href'].startswith('/wiki/International_Standard_Book_Number')\
+        #             and not link_tag['href'].startswith('/wiki/Special:')\
+        #             and not link_tag['href'].startswith('/wiki/Wikipedia:')
+        #     return cond
 
         assert (self._soup is not None), 'self._soup is None'
 
