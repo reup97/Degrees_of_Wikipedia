@@ -2,12 +2,13 @@
 a crawler used for parsing pages in wikipedia
 '''
 import re
+import http
 from urllib.error import URLError
 from urllib.request import urlopen, Request
 from bs4 import BeautifulSoup
 from log import debug_log, log
 
-debug = True
+debug = False
 
 class Crawler(object):
     '''
@@ -53,6 +54,12 @@ class Crawler(object):
             return None
         except UnicodeDecodeError as e:
             # example: https://en.wikipedia.org/wiki/Kronkåsa
+            err_msg = 'Cannot open the page with name {}: {}'.format(self._start, e)
+            if debug:
+                debug_log(err_msg)
+            log(err_msg)
+            return None
+        except http.client.BadStatusLine as e:
             err_msg = 'Cannot open the page with name {}: {}'.format(self._start, e)
             if debug:
                 debug_log(err_msg)
