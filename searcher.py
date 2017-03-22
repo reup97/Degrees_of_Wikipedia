@@ -17,8 +17,8 @@ class Searcher(object):
         '''
         #TODO
         '''
-        self._start = start.lower()
-        self._end = end.lower()
+        self._start = start.lower().strip()
+        self._end = end.lower().strip()
 
         # stores all of the names
         self._todo_queue = Queue()
@@ -49,11 +49,11 @@ class Searcher(object):
                 #
                 self.nodes_counter += 1
                 if debug:
-                    debug_log('################now at ({}), total {}, queue size {}##############'\
+                    debug_log('##now at ({}), total {}, queue size {}##'\
                                 .format(curr_vertex_name, self.nodes_counter,
                                         self._todo_queue.qsize()))
                 if self._end in curr_vertex_name:
-                    log('###found target {}({})!###'.format(self._end, curr_vertex_name))
+                    log('$$found target {}({})!$$'.format(self._end, curr_vertex_name))
                     self.found_target = True
                     return
 
@@ -66,7 +66,8 @@ class Searcher(object):
                 # put all neighbours into _todo_queue except ones already visited
                 for neighbour_name in neighbours:
                     neighbour_name = neighbour_name.lower()
-                    if neighbour_name not in self._reached and neighbour_name not in curr_vertex_name:
+                    if neighbour_name not in self._reached and neighbour_name\
+                        not in curr_vertex_name:
                         # if self._end in neighbour_name:
                         #     log('###found target {}({})!###'.format(self._end, neighbour_name))
                         #     if debug:
@@ -120,8 +121,6 @@ class Searcher(object):
             with open('path_dict_test.txt', 'w') as f:
                 debug_log('writing path dict to file')
                 f.write(str(self._reached))
-            # print(self._reached)
-            # return
         curr_vertex = self._end
         path = []
         while curr_vertex != self._start:

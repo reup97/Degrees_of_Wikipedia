@@ -57,8 +57,8 @@ def main():
         _test()
     while True:
         _help()
-        start_lemma_name = input('Starts at: ')
-        end_lemma_name = input('Ends at: ')
+        start_lemma_name = input('Starts at: ').strip()
+        end_lemma_name = input('Ends at: ').strip()
 
         # start searching
         wiki_searcher = Searcher(start_lemma_name, end_lemma_name)
@@ -69,8 +69,6 @@ def main():
         keystroke = input('press any key to continue, q to quick: ')
         if keystroke == 'q':
             break
-
-
 
 
 if __name__ == '__main__':
