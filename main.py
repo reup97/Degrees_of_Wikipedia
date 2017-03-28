@@ -1,3 +1,7 @@
+'''
+The main entry of degrees of wikipedia.
+'''
+
 from crawler import Crawler
 from searcher import Searcher
 
