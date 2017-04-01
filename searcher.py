@@ -48,9 +48,10 @@ class Searcher(object):
                 #
                 self.nodes_counter += 1
                 if debug:
-                    debug_log('##now at ({}), total {}, queue size {}##'\
-                                .format(curr_vertex_info, self.nodes_counter,
-                                        self._todo_queue.qsize()))
+                    debug_log('##now at ({}), total {}, queue size {}##'
+                              .format(curr_vertex_info,
+                                      self.nodes_counter,
+                                      self._todo_queue.qsize()))
                 if self._end in curr_vertex_info[0]:
                     log('$$found target {}({})!$$'.format(self._end, curr_vertex_info))
                     # modify self._end:
@@ -59,7 +60,6 @@ class Searcher(object):
                     return
 
                 # do work
-
                 crawler = Crawler(start=curr_vertex_info[0], relurl=curr_vertex_info[1])
                 if not crawler.has_soup():
                     # be tolerant, go to next iteration
@@ -70,18 +70,8 @@ class Searcher(object):
 
                 # put all neighbours into _todo_queue except ones already visited
                 for neighbour in neighbours:
-                    if neighbour[0] not in self._reached and\
-                        neighbour[0] not in curr_vertex_info[0]:
-                        # if self._end in neighbour:
-                        #     log('###found target {}({})!###'.format(self._end, neighbour))
-                        #     if debug:
-                        #         debug_log('change self._end from {} to {}'.format(
-                        #             self._end, neighbour))
-                        #     self._end = neighbour
-                        #     self._reached[self._end] = curr_vertex_info
-                        #     self._todo_queue.task_done()
-                        #     self.found_target = True
-                        #     return
+                    if (neighbour[0] not in self._reached
+                            and neighbour[0] not in curr_vertex_info[0]):
                         if self._reached[curr_vertex_info[0]] != neighbour[0]:
                             self._reached[neighbour[0]] = curr_vertex_info[0]
                         self._todo_queue.put(neighbour)
@@ -97,7 +87,7 @@ class Searcher(object):
             if debug:
                 debug_log('killing worker...found target')
             self._todo_queue.task_done()
-        # } end of worker()
+        # } end worker()
 
         # apply BFS with the help of thread
         # initialize bfs

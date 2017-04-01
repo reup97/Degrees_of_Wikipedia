@@ -2,7 +2,6 @@
 The main entry of degrees of wikipedia.
 '''
 
-from crawler import Crawler
 from searcher import Searcher
 
 def _init():
@@ -61,8 +60,8 @@ def main():
         _test()
     while True:
         _help()
-        start_lemma_name = input('Starts at: ').strip()
-        end_lemma_name = input('Ends at: ').strip()
+        start_lemma_name = input('Starts at: ').strip().lower()
+        end_lemma_name = input('Ends at: ').strip().lower()
 
         # start searching
         wiki_searcher = Searcher(start_lemma_name, end_lemma_name)
@@ -77,4 +76,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-    

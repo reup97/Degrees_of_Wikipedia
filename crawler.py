@@ -23,8 +23,6 @@ class Crawler(object):
         self._url = self.BASE_URL + relurl if relurl is not None else None
         if debug:
             debug_log(self._url)
-        # if relurl is not None:
-        #     self._url = self.BASE_URL + relurl
 
         self._soup = self._make_soup()
 
@@ -108,7 +106,7 @@ class Crawler(object):
         assert self.has_soup(), 'self._soup is None'
 
         all_link_tags = self._soup.find(id='bodyContent')\
-                        .find_all('a', href=re.compile("^(/wiki/)((?!:).)*$"))
+                            .find_all('a', href=re.compile("^(/wiki/)((?!:).)*$"))
 
         # links = [link_tag.get_text() for link_tag in all_link_tags
         #          if filt_cond(link_tag)]
