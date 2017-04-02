@@ -53,22 +53,26 @@ class Searcher(object):
                                       self.nodes_counter,
                                       self._todo_queue.qsize()))
                 if self._end in curr_vertex_info[0]:
-                    log('$$found target {}({})!$$'.format(self._end, curr_vertex_info))
+                    log('$$found target {}({})!$$'.format(self._end,
+                        curr_vertex_info))
                     # modify self._end:
                     self._end = curr_vertex_info[0]
                     self.found_target = True
                     return
 
                 # do work
-                crawler = Crawler(start=curr_vertex_info[0], relurl=curr_vertex_info[1])
+                crawler = Crawler(start=curr_vertex_info[0], 
+                        relurl=curr_vertex_info[1])
                 if not crawler.has_soup():
                     # be tolerant, go to next iteration
                     continue
 
-                # get all link information; each element in neighbours contains (name, url)
+                # get all link information; each element in neighbours
+                # contains (name, url)
                 neighbours = crawler.get_all_links()
 
-                # put all neighbours into _todo_queue except ones already visited
+                # put all neighbours into _todo_queue except ones already
+                # visited
                 for neighbour in neighbours:
                     if (neighbour[0] not in self._reached
                             and neighbour[0] not in curr_vertex_info[0]):
@@ -76,7 +80,8 @@ class Searcher(object):
                             self._reached[neighbour[0]] = curr_vertex_info[0]
                         self._todo_queue.put(neighbour)
                         if self._end in neighbour[0]:
-                            log('$$found target {}({})!$$'.format(self._end, neighbour[0]))
+                            log('$$found target {}({})!$$'.format(
+                                self._end, neighbour[0]))
                             # modify self._end info
                             self._end = neighbour[0]
                             self.found_target = True
@@ -150,3 +155,4 @@ class Searcher(object):
         except TypeError:
             res['degree'] = 0
         return res
+
