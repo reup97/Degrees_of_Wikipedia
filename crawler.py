@@ -20,7 +20,7 @@ class Crawler(object):
         url: RELATIVE url
         '''
         self._start = start
-        self._url = self.BASE_URL + relurl if relurl is not None else None
+        self._url = self._BASE_RUL + relurl if relurl is not None else None
         if debug:
             debug_log(self._url)
 
@@ -28,15 +28,15 @@ class Crawler(object):
 
 
     # class varialbes
-    BASE_URL = 'https://en.wikipedia.org'
-    HEADERS = {'User-Agent' : 'Mozilla/4.0 (compatible; MSIE 5.5; Windows NT)'}
+    _BASE_RUL = 'https://en.wikipedia.org'
+    _HEADERS = {'User-Agent' : 'Mozilla/4.0 (compatible; MSIE 5.5; Windows NT)'}
 
     def has_soup(self):
         '''check if the crawler has a non-empty soup'''
         return self._soup is not None
 
     def generate_full_url(self):
-        url = self.BASE_URL + '/wiki/' + self._start
+        url = self._BASE_RUL + '/wiki/' + self._start
         # get rid of non-ascii characters by encode + decode
         url = url.encode('ascii', 'ignore').decode('ascii')
         return url
@@ -54,7 +54,7 @@ class Crawler(object):
                     debug_log('get request...')
                     debug_log('url is {}'.format(self._url))
 
-            req = Request(self._url, headers=self.HEADERS)
+            req = Request(self._url, headers=self._HEADERS)
             response = urlopen(req)
             soup = BeautifulSoup(response, "html5lib")
 
@@ -83,6 +83,7 @@ class Crawler(object):
                 debug_log(err_msg)
             log(err_msg)
             return None
+
         else:
             return soup
 

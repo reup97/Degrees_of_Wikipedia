@@ -11,8 +11,7 @@ def _init():
     import argparse
     parser = argparse.ArgumentParser(
         description='Taxonomy service.',
-        formatter_class=argparse.RawTextHelpFormatter,
-    )
+        formatter_class=argparse.RawTextHelpFormatter,)
 
     parser.add_argument("-d", "-debug",
                         help="run in the debug mode",
@@ -58,6 +57,7 @@ def main():
 
     if args.do_doctest:
         _test()
+        return
     while True:
         _help()
         start_lemma_name = input('Starts at: ').strip().lower()
@@ -70,6 +70,30 @@ def main():
         show_result(wiki_searcher.get_result())
 
         keystroke = input('press any key to continue, q to quick: ')
+        if keystroke == 'q':
+            break
+
+def test_main():
+    '''
+    main entry of the TEST_program: no prompt
+    '''
+    args = _init()
+
+    if args.do_doctest:
+        _test()
+        return
+    while True:
+        _help()
+        start_lemma_name = input().strip().lower()
+        end_lemma_name = input().strip().lower()
+
+        # start searching
+        wiki_searcher = Searcher(start_lemma_name, end_lemma_name)
+        wiki_searcher.run_search()
+        # get results
+        show_result(wiki_searcher.get_result())
+
+        keystroke = input()
         if keystroke == 'q':
             break
 

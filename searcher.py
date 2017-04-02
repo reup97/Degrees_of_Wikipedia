@@ -29,7 +29,6 @@ class Searcher(object):
 
     # class variable
     _NUM_WORKER_THREADS = 20
-    _FINISH_SIGNAL = '###DONE###'
     nodes_counter = 0
 
     def run_search(self):
