@@ -15,3 +15,4 @@ def log(msg):
     msg pipped to stdout
     '''
     print('[Log]{}'.format(msg), file=sys.stdout, flush=True)
+

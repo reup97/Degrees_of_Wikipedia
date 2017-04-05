@@ -2,7 +2,6 @@
 Searcher class
 '''
 import threading
-
 from queue import Queue
 from crawler import Crawler
 from log import log, debug_log
@@ -17,8 +16,8 @@ class Searcher(object):
         '''
         #TODO
         '''
-        self._start = start.lower()
-        self._end = end.lower()
+        self._start = start.lower().strip()
+        self._end = end.lower().strip()
 
         # stores all of the names
         self._todo_queue = Queue()
@@ -30,7 +29,6 @@ class Searcher(object):
 
     # class variable
     _NUM_WORKER_THREADS = 20
-    _FINISH_SIGNAL = '###DONE###'
     nodes_counter = 0
 
     def run_search(self):
@@ -42,55 +40,62 @@ class Searcher(object):
             '''
             worker
             '''
-            while not self.found_target:
+            while (not self.found_target):
             # {
                 # get a task
-                curr_vertex_name = self._todo_queue.get()
+                curr_vertex_info = self._todo_queue.get()
                 #
                 self.nodes_counter += 1
                 if debug:
-                    debug_log('################now at ({}), total {}, queue size {}##############'\
-                                .format(curr_vertex_name, self.nodes_counter,
-                                        self._todo_queue.qsize()))
-                if self._end in curr_vertex_name:
-                    log('###found target {}({})!###'.format(self._end, curr_vertex_name))
+                    debug_log('##now at ({}), total {}, queue size {}##'
+                              .format(curr_vertex_info,
+                                      self.nodes_counter,
+                                      self._todo_queue.qsize()))
+                if self._end in curr_vertex_info[0]:
+                    log('$$found target {}({})!$$'.format(self._end,
+                        curr_vertex_info))
+                    # modify self._end:
+                    self._end = curr_vertex_info[0]
                     self.found_target = True
                     return
 
                 # do work
-                crawler = Crawler(curr_vertex_name)
+                crawler = Crawler(start=curr_vertex_info[0], 
+                        relurl=curr_vertex_info[1])
                 if not crawler.has_soup():
+                    # be tolerant, go to next iteration
                     continue
 
-                neighbours = crawler.get_all_link_names()
-                # put all neighbours into _todo_queue except ones already visited
-                for neighbour_name in neighbours:
-                    neighbour_name = neighbour_name.lower()
-                    if neighbour_name not in self._reached and neighbour_name not in curr_vertex_name:
-                        # if self._end in neighbour_name:
-                        #     log('###found target {}({})!###'.format(self._end, neighbour_name))
-                        #     if debug:
-                        #         debug_log('change self._end from {} to {}'.format(
-                        #             self._end, neighbour_name))
-                        #     self._end = neighbour_name
-                        #     self._reached[self._end] = curr_vertex_name
-                        #     self._todo_queue.task_done()
-                        #     self.found_target = True
-                        #     return
-                        if self._reached[curr_vertex_name] != neighbour_name:
-                            self._reached[neighbour_name] = curr_vertex_name
-                        self._todo_queue.put(neighbour_name)
+                # get all link information; each element in neighbours
+                # contains (name, url)
+                neighbours = crawler.get_all_links()
+
+                # put all neighbours into _todo_queue except ones already
+                # visited
+                for neighbour in neighbours:
+                    if (neighbour[0] not in self._reached
+                            and neighbour[0] not in curr_vertex_info[0]):
+                        if self._reached[curr_vertex_info[0]] != neighbour[0]:
+                            self._reached[neighbour[0]] = curr_vertex_info[0]
+                        self._todo_queue.put(neighbour)
+                        if self._end in neighbour[0]:
+                            log('$$found target {}({})!$$'.format(
+                                self._end, neighbour[0]))
+                            # modify self._end info
+                            self._end = neighbour[0]
+                            self.found_target = True
+                            return
                 # finish current task
                 self._todo_queue.task_done()
             # } end while loop
             if debug:
-                debug_log('killing worker...self.found_target is True')
+                debug_log('killing worker...found target')
             self._todo_queue.task_done()
-        # } end of worker()
+        # } end worker()
 
         # apply BFS with the help of thread
         # initialize bfs
-        self._todo_queue.put(self._start)
+        self._todo_queue.put((self._start, None))
         self._reached[self._start] = self._start
 
         threads = []
@@ -109,19 +114,13 @@ class Searcher(object):
             if self._reached[self._end]:
                 self.generate_path()
         except KeyError:
-            log('Cannot reach {}'.format(self._end))
+            log('Cannot reach {} while generating path'.format(self._end))
 
 
     def generate_path(self):
         '''
         trace back to generate path
         '''
-        if debug:
-            with open('path_dict_test.txt', 'w') as f:
-                debug_log('writing path dict to file')
-                f.write(str(self._reached))
-            # print(self._reached)
-            # return
         curr_vertex = self._end
         path = []
         while curr_vertex != self._start:
@@ -138,7 +137,8 @@ class Searcher(object):
                 break
         path.append(self._start)
         self._path = path[::-1]
-
+        
+                
 
     def get_result(self):
         '''
@@ -150,4 +150,11 @@ class Searcher(object):
             res['degree'] = len(self._path) - 1
         except TypeError:
             res['degree'] = 0
+        # write results to file
+        with open('path_dict_result.txt', 'w') as f:
+            if debug:
+                debug_log('writing path dict to file')
+            f.write(str(res))
+            f.write(str(self._reached))
         return res
+
