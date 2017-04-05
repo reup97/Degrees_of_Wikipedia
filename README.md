@@ -1,3 +1,3 @@
 # Degrees of Wikipedia
 ## Dependencies:
-..*bs4
+..* bs4
