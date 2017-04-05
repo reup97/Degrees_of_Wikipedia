@@ -1,2 +1,3 @@
-# Degrees_of_Wikipedia
-Requires: Beautiful Soup
+# Degrees of Wikipedia
+## Dependencies:
+..*bs4
