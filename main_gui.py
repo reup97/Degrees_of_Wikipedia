@@ -60,6 +60,8 @@ class WikiApp(tk.Tk):
         '''
         # TODO: enrich result later
         print(result)
+        self.result_label = tk.Label(self, text=''.format(str(result)))
+        self.result_label.grid(rowspan=2)
 
     def start_search(self):
         '''
@@ -73,8 +75,8 @@ class WikiApp(tk.Tk):
         wiki_searcher.run_search()
         # get results
         self.show_result(wiki_searcher.get_result())
-        self.start_entry.delete(0, END)
-        self.end_entry.delete(0, END)
+        self.start_entry.delete(0, tk.END)
+        self.end_entry.delete(0, tk.END)
 
 if __name__ == '__main__':
     args = _init()

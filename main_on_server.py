@@ -50,6 +50,21 @@ def show_result(result):
     # TODO: enrich result later
     print(result)
 
+def send_result():
+    # TODO
+    with open('logininfo.txt', 'r') as login: 
+        USER, PASSWORD = login.read().split()
+    SUBJECT = 'results of degrees of wikipedia'
+    BODY = ''
+    with open('path_dict_result.txt', 'r') as result:
+        for line in result:
+            BODY += line
+    try:
+        send_email(USER, PASSWORD, USER, SUBJECT, BODY)
+    except:
+        pass
+
+    
 def main():
     '''
     main entry of the program
@@ -70,7 +85,7 @@ def main():
         # get results
         show_result(wiki_searcher.get_result())
         # send result to my email
-        
+        send_result()        
         keystroke = input('press any key to continue, q to quick: ')
         if keystroke == 'q':
             break
@@ -94,7 +109,8 @@ def test_main():
         wiki_searcher.run_search()
         # get results
         show_result(wiki_searcher.get_result())
-
+        # send result to my email
+        send_result()        
         keystroke = input()
         if keystroke == 'q':
             break

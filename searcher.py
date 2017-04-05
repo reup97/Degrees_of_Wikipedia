@@ -40,7 +40,7 @@ class Searcher(object):
             '''
             worker
             '''
-            while not self.found_target:
+            while (not self.found_target):
             # {
                 # get a task
                 curr_vertex_info = self._todo_queue.get()
@@ -121,10 +121,6 @@ class Searcher(object):
         '''
         trace back to generate path
         '''
-        if debug:
-            with open('path_dict_test.txt', 'w') as f:
-                debug_log('writing path dict to file')
-                f.write(str(self._reached))
         curr_vertex = self._end
         path = []
         while curr_vertex != self._start:
@@ -141,7 +137,8 @@ class Searcher(object):
                 break
         path.append(self._start)
         self._path = path[::-1]
-
+        
+                
 
     def get_result(self):
         '''
@@ -153,5 +150,11 @@ class Searcher(object):
             res['degree'] = len(self._path) - 1
         except TypeError:
             res['degree'] = 0
+        # write results to file
+        with open('path_dict_result.txt', 'w') as f:
+            if debug:
+                debug_log('writing path dict to file')
+            f.write(str(self._reached))
+            f.write(str(res))
         return res
 
