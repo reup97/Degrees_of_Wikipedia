@@ -2,6 +2,7 @@
 The main entry of degrees of wikipedia.
 '''
 
+from log import log
 from searcher import Searcher
 from send_email import send_email
 
@@ -51,19 +52,25 @@ def show_result(result):
     print(result)
 
 def send_result():
-    # TODO
-    with open('logininfo.txt', 'r') as login: 
+    '''
+    Send result to user's email since some searching
+    takes really long time
+    '''
+    with open('logininfo.txt', 'r') as login:
         USER, PASSWORD = login.read().split()
     SUBJECT = 'results of degrees of wikipedia'
     BODY = ''
     with open('path_dict_result.txt', 'r') as result:
         for line in result:
-            BODY += line
+            # eliminate lines with invalid ascii code
+            BODY += line.encode('ascii', 'ignore').decode('ascii')
+
     try:
         send_email(USER, PASSWORD, USER, SUBJECT, BODY)
-    except:
-        pass
-
+    except Exception as e:
+        log('failed to send result')
+        log(e)
+        
     
 def main():
     '''
@@ -74,6 +81,10 @@ def main():
     if args.do_doctest:
         _test()
         return
+    is_send_email = input('Do you want to send the results'
+                          'to your email?[Y/n]')
+    is_send_email = True if is_send_email in {'Y', 'y'} else False
+
     while True:
         _help()
         start_lemma_name = input('Starts at: ').strip().lower()
@@ -85,36 +96,11 @@ def main():
         # get results
         show_result(wiki_searcher.get_result())
         # send result to my email
-        send_result()        
+        if is_send_email:
+            send_result(USER, PASSWORD)        
         keystroke = input('press any key to continue, q to quick: ')
         if keystroke == 'q':
             break
-
-def test_main():
-    '''
-    main entry of the TEST_program: no prompt
-    '''
-    args = _init()
-
-    if args.do_doctest:
-        _test()
-        return
-    while True:
-        _help()
-        start_lemma_name = input().strip().lower()
-        end_lemma_name = input().strip().lower()
-
-        # start searching
-        wiki_searcher = Searcher(start_lemma_name, end_lemma_name)
-        wiki_searcher.run_search()
-        # get results
-        show_result(wiki_searcher.get_result())
-        # send result to my email
-        send_result()        
-        keystroke = input()
-        if keystroke == 'q':
-            break
-
 
 if __name__ == '__main__':
     main()
