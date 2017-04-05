@@ -154,7 +154,7 @@ class Searcher(object):
         with open('path_dict_result.txt', 'w') as f:
             if debug:
                 debug_log('writing path dict to file')
-            f.write(str(self._reached))
             f.write(str(res))
+            f.write(str(self._reached))
         return res
 
