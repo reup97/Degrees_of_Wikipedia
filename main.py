@@ -3,7 +3,7 @@ The main entry of degrees of wikipedia.
 '''
 
 from searcher import Searcher
-from send_email import send_email
+
 
 def _init():
     '''
@@ -70,8 +70,8 @@ def main():
         # get results
         show_result(wiki_searcher.get_result())
         # send result to my email
-        
         keystroke = input('press any key to continue, q to quick: ')
+
         if keystroke == 'q':
             break
 

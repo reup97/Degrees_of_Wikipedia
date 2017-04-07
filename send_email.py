@@ -1,6 +1,5 @@
 def send_email(user, passwd, recipient, subject, body):
     import smtplib
-    from email.mime.text import MIMEText
 
     gmail_user = user
     gmail_pwd = passwd

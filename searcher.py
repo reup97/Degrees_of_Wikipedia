@@ -40,7 +40,7 @@ class Searcher(object):
             '''
             worker
             '''
-            while (not self.found_target):
+            while not self.found_target:
             # {
                 # get a task
                 curr_vertex_info = self._todo_queue.get()
@@ -53,15 +53,15 @@ class Searcher(object):
                                       self._todo_queue.qsize()))
                 if self._end in curr_vertex_info[0]:
                     log('$$found target {}({})!$$'.format(self._end,
-                        curr_vertex_info))
+                                                          curr_vertex_info))
                     # modify self._end:
                     self._end = curr_vertex_info[0]
                     self.found_target = True
                     return
 
                 # do work
-                crawler = Crawler(start=curr_vertex_info[0], 
-                        relurl=curr_vertex_info[1])
+                crawler = Crawler(start=curr_vertex_info[0],
+                                  relurl=curr_vertex_info[1])
                 if not crawler.has_soup():
                     # be tolerant, go to next iteration
                     continue
@@ -137,8 +137,7 @@ class Searcher(object):
                 break
         path.append(self._start)
         self._path = path[::-1]
-        
-                
+
 
     def get_result(self):
         '''
@@ -157,4 +156,3 @@ class Searcher(object):
             f.write(str(res))
             f.write(str(self._reached))
         return res
-

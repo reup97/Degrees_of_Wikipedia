@@ -70,8 +70,8 @@ def send_result():
     except Exception as e:
         log('failed to send result')
         log(e)
-        
-    
+
+
 def main():
     '''
     main entry of the program
@@ -97,7 +97,7 @@ def main():
         show_result(wiki_searcher.get_result())
         # send result to my email
         if is_send_email:
-            send_result()        
+            send_result()
         keystroke = input('press any key to continue, q to quick: ')
         if keystroke == 'q':
             break

@@ -1,5 +1,5 @@
 '''
-Reference: 
+Reference:
     https://docs.python.org/3/library/tkinter.html#tkinter-life-preserver
 '''
 import tkinter as tk
@@ -9,21 +9,26 @@ from log import debug_log, log
 
 debug = True
 
- 
+
 class WikiApp(tk.Frame):
+    '''GUI version of degree of wikipedia
+    '''
     def __init__(self, master=None):
         super().__init__(master)
+        self.start_lemma_name = ''
+        self.end_lemma_name = ''
         self.pack()
         self.create_widges()
         self._help()
 
     def create_widges(self):
+        '''create widges'''
         self.welcome_label = tk.Label(self,
-                                text='Welcome to Degrees of Wikipedia!')
+                                      text='Welcome to Degrees of Wikipedia!')
         self.start_label = tk.Label(self,
                                     text='Start at: ')
         self.end_label = tk.Label(self,
-                                    text='End at: ')
+                                  text='End at: ')
         self.start_entry = tk.Entry(self)
         self.end_entry = tk.Entry(self)
         self.start_button = tk.Button(self,
@@ -43,7 +48,7 @@ class WikiApp(tk.Frame):
         '''
         Display `content` in Tk.Text widget
         '''
-        self.result_text.insert(tk.END,'{}\n'.format(content))
+        self.result_text.insert(tk.END, '{}\n'.format(content))
 
     def clear_text(self):
         '''
@@ -61,9 +66,9 @@ class WikiApp(tk.Frame):
     def show_result(self, result):
         '''
         result: returned value from searcher.result()
-                Ex: {'degree': 2, 
-                     'path': ['macbook', 'apple inc.', 
-                              'iphone 6s plus']} 
+                Ex: {'degree': 2,
+                     'path': ['macbook', 'apple inc.',
+                              'iphone 6s plus']}
         '''
         # TODO: enrich result later
         if debug:
@@ -82,7 +87,7 @@ class WikiApp(tk.Frame):
         self.start_lemma_name = self.start_entry.get()
         self.end_lemma_name = self.end_entry.get()
         # start searching
-        wiki_searcher = Searcher(self.start_lemma_name, 
+        wiki_searcher = Searcher(self.start_lemma_name,
                                  self.end_lemma_name)
         wiki_searcher.run_search()
         # got it, display result
