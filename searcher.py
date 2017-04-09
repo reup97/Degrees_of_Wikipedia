@@ -2,8 +2,8 @@
 Searcher class
 '''
 import threading
-import networkx as nx
 from queue import Queue
+import networkx as nx
 
 
 import fileio
@@ -28,7 +28,7 @@ class Searcher(object):
 
         self._reached = dict()
         self._path = None
-        self._nx_graph = nx.Graph()
+        self._nx_digraph = nx.DiGraph()
 
 
         self.found_target = False
@@ -106,6 +106,10 @@ class Searcher(object):
                         ######### ADD LOCK #######
                         LOCK.acquire()
                         try:
+                            #################
+                            ## update graph##
+                            #################
+                            self._nx_digraph.add_edge(curr_vertex_info[0], neighbour[0])
                             self._reached[neighbour[0]] = curr_vertex_info[0]
                         finally:
                             LOCK.release()
@@ -184,6 +188,10 @@ class Searcher(object):
             res['degree'] = len(self._path) - 1
         except TypeError:
             res['degree'] = 0
+        #####################
+        ## add graph to res##
+        #####################
+        res['graph'] = self._nx_digraph
         # write the graph to a file
         if debug:
             debug_log('storing graph...')

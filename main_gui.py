@@ -7,6 +7,8 @@ Reference:
 
 '''
 import tkinter as tk
+import networkx as nx
+import matplotlib.pyplot as plt
 from searcher import Searcher
 from log import debug_log, log
 from settings import *
@@ -76,7 +78,8 @@ class WikiApp(tk.Frame):
         '''result: returned value from searcher.result()
                 Ex: {'degree': 2,
                      'path': ['macbook', 'apple inc.',
-                              'iphone 6s plus']}
+                              'iphone 6s plus']
+                     'graph':networkx.classes.digraph.Digraph
         '''
         log(result)
         self.clear_text()
@@ -89,6 +92,11 @@ class WikiApp(tk.Frame):
             if i != len(res_path) - 1:
                 self.display_text(' --> ')
 
+        #################
+        ## draw  graph###
+        #################
+        nx.draw(result['graph'])
+        plt.show()
 
     def _help(self):
         '''Show the usages of the program.
