@@ -15,9 +15,10 @@ class Crawler(object):
     crawler class
     '''
     def __init__(self, start=None, relurl=None):
-        '''
+        '''`relurl` can be None if the url is not known yet. Crawler
+        will automatically generate the url for you.
         start: name of lemma at the starting point
-        url: RELATIVE url
+        relurl: @NOTE:RELATIVE url
         '''
         self._start = start
         self._url = self._BASE_RUL + relurl if relurl is not None else None
@@ -42,12 +43,14 @@ class Crawler(object):
         return url
 
     def _make_soup(self):
+        '''send request, handle response, and get soup object
+        @NOTE: It will automatically generate url if url was
+        originally passed in as `None`.
+        Return:
+            soup object if no Exception is raised.
+            Otherwise return `None`.
         '''
-        send request, handle response, and get soup object
-        '''
-
         try:
-            # short circuit if crawler is initialized with url
             if self._url is None:
                 self._url = self.generate_full_url()
                 if debug:
@@ -60,7 +63,7 @@ class Crawler(object):
 
         except URLError as e:
             err_msg = 'Cannot open the page with name {}: {}'.format(
-                    self._start, e)
+                self._start, e)
             if debug:
                 debug_log(err_msg)
             log(err_msg)
@@ -69,8 +72,10 @@ class Crawler(object):
         except UnicodeDecodeError as e:
             # example: https://en.wikipedia.org/wiki/Kronkåsa
             # 'Kronkåsa' contains non-ascii characters
+            # We don't do encode & decode trick simply because it will
+            # not be a reasonable keyword to search.
             err_msg = 'Cannot open the page with name {}: {}'.format(
-                    self._start, e)
+                self._start, e)
             if debug:
                 debug_log(err_msg)
             log(err_msg)
@@ -78,7 +83,7 @@ class Crawler(object):
 
         except http.client.BadStatusLine as e:
             err_msg = 'Cannot open the page with name {}: {}'.format(
-                    self._start, e)
+                self._start, e)
             if debug:
                 debug_log(err_msg)
             log(err_msg)
@@ -93,37 +98,27 @@ class Crawler(object):
         Return: a list of tuples that the first element is the name and
         the second element its the RELATIVE url.
         '''
-
-        # def filt_cond(link_tag):
-        #     '''
-        #     conditions for filtering good links
-        #     '''
-        #     cond = link_tag['href'].startswith('/wiki/')\
-        #             and not link_tag['href'].startswith('/wiki/Category:')\
-        #             and not link_tag['href'].startswith('/wiki/File:')\
-        #             and not link_tag['href'].startswith('/wiki/Help:')\
-        #             and not link_tag['href'].startswith('/wiki/International_Standard_Book_Number')\
-        #             and not link_tag['href'].startswith('/wiki/Special:')\
-        #             and not link_tag['href'].startswith('/wiki/Wikipedia:')
-        #     return cond
-
         assert self.has_soup(), 'self._soup is None'
 
+        # valid urls need to be in this format: start with /wiki/ and
+        # not contain `:`.
         all_link_tags = self._soup.find(id='bodyContent')\
-                            .find_all('a', href=re.compile("^(/wiki/)((?!:).)*$"))
+                            .find_all('a', href=re.compile('^(/wiki/)((?!:).)*$'))
 
-        # links = [link_tag.get_text() for link_tag in all_link_tags
-        #          if filt_cond(link_tag)]
-        links = [(link_tag.get_text().lower(), link_tag.get('href')) for link_tag in all_link_tags\
-                 if 'href' in link_tag.attrs and link_tag.get_text() != 'ISBN']
+        # links = [(link_tag.get_text().lower(), link_tag.get('href')) for link_tag in all_link_tags\
+        #          if 'href' in link_tag.attrs and link_tag.get_text() != 'ISBN']
+        links = []
+        for link_tag in all_link_tags:
+            if 'href' in link_tag.attrs and link_tag.get_text() != 'ISBN':
+                links.append((link_tag.get_text().lower(), link_tag.get('href')))
+
         if debug:
             debug_log('number of links: {}'.format(len(links)))
         return links
 
 
     def get_node_name(self):
-        '''
-        get the node name for the start
+        '''get the node name for the as the start name.
         '''
         try:
             title_node = self._soup.find(id="firstHeading")
@@ -146,8 +141,7 @@ class Crawler(object):
 
 
 def _test():
-    '''
-    some test to make sure it works
+    '''some test to make sure it works
     '''
     test_cases = ['Mug', 'Star', 'Elephant', 'Cat', 'iphone', 'samsung']
     test_cases = ['Mug']
