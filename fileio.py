@@ -14,12 +14,12 @@ def write_graph(graph):
     Return:
         None
     '''
-    lastest_file_name = 'path_dict_result.txt'
+    latest_file_name = 'path_dict_result.txt'
 
     # write results to a file.
-    # lastest_file_name is the file that stores the lastest
+    # latest_file_name is the file that stores the lastest
     # result.
-    with open(lastest_file_name, 'w') as result_file:
+    with open(latest_file_name, 'w') as result_file:
         if debug:
             debug_log('writing path dict to file')
         result_file.write(str(graph))
@@ -29,7 +29,7 @@ def write_graph(graph):
     suffix = datetime.datetime.now().strftime('%y%m%d%H%M%S')
     filename = '_'.join([basename, suffix]) + '.txt'
     # copy the lastest result file to the graph_bank
-    subprocess.run(['cp', lastest_file_name, filename])
+    subprocess.run(['cp', latest_file_name, filename])
 
 def read_all_graphs():
     '''Read all graph files into a dictionary.

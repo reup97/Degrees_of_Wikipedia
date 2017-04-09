@@ -8,7 +8,7 @@ Reference:
 '''
 import tkinter as tk
 from searcher import Searcher
-from log import debug_log, log
+from log import debug_log
 
 debug = True
 
@@ -16,8 +16,10 @@ debug = True
 class WikiApp(tk.Frame):
     '''GUI version of degree of wikipedia
     '''
+    _BACKGROUND_COLOR = 'white'
     def __init__(self, master=None):
         super().__init__(master)
+        self.configure(background=self._BACKGROUND_COLOR)
         self.start_lemma_name = ''
         self.end_lemma_name = ''
         self.pack()
@@ -28,17 +30,22 @@ class WikiApp(tk.Frame):
         '''create widges.
         '''
         self.welcome_label = tk.Label(self,
-                                      text='Welcome to Degrees of Wikipedia!')
+                                      text='Welcome to Degrees of Wikipedia!',
+                                      bg=self._BACKGROUND_COLOR)
         self.start_label = tk.Label(self,
-                                    text='Start at: ')
+                                    text='Start at: ',
+                                    bg=self._BACKGROUND_COLOR)
         self.end_label = tk.Label(self,
-                                  text='End at: ')
+                                  text='End at: ',
+                                  bg=self._BACKGROUND_COLOR)
         self.start_entry = tk.Entry(self)
         self.end_entry = tk.Entry(self)
         self.start_button = tk.Button(self,
                                       text='Start',
-                                      command=self.start_search)
-        self.result_text = tk.Text(self, width=40, height=10)
+                                      command=self.start_search,
+                                      bg=self._BACKGROUND_COLOR)
+        self.result_text = tk.Text(self, width=40, height=10,
+                                   bg=self._BACKGROUND_COLOR)
         # add widges to frame
         self.welcome_label.grid(columnspan=2)
         self.start_label.grid(row=1, column=0)
@@ -51,10 +58,10 @@ class WikiApp(tk.Frame):
     def display_text(self, content):
         '''Display `content` in Tk.Text widget.
         '''
-        self.result_text.insert(tk.END, '{}\n'.format(content))
+        self.result_text.insert(tk.END, content)
 
     def clear_text(self):
-        '''Clean up text area
+        '''Clean up text area.
         '''
         self.result_text.delete(1.0, tk.END)
 
@@ -64,19 +71,30 @@ class WikiApp(tk.Frame):
                      'path': ['macbook', 'apple inc.',
                               'iphone 6s plus']}
         '''
-        # TODO: enrich result later
         if debug:
             debug_log(result)
         self.clear_text()
         self.display_text('Got it!\n')
-        self.display_text(str(result['degree'])+ '\n')
-        self.display_text(result['path'])
+        self.display_text('Degree: ' + str(result['degree'])+ '\n')
+        self.display_text('Path: ')
+        res_path = result['path']
+        for (i, node) in enumerate(res_path):
+            self.display_text(node)
+            if i != len(res_path) - 1:
+                self.display_text(' --> ')
+
 
     def _help(self):
         '''Show the usages of the program.
         '''
-        self.display_text('TODO')
-        # TODO: enrich help doc later
+        helptext = ('Welome to degrees of wikipedia!\n'
+                    'There is a well-known idea called "six degrees of separation": '
+                    'everything in this world can be connected by 6 steps or less '
+                    'with others. This program simulates this thory in the world of '
+                    'Wikipedia.\n'
+                    'To find the relation between two words, enter them in the \'Start\' '
+                    'and \'End\' entry.')
+        self.display_text(helptext)
 
     def do_searching(self):
         '''Run search.

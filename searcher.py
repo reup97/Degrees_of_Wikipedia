@@ -53,6 +53,7 @@ class Searcher(object):
             try:
                 self._end = tar
                 self.found_target = True
+                self._todo_queue.task_done()
             finally:
                 LOCK.release()
 
@@ -108,7 +109,7 @@ class Searcher(object):
         # Target has been found if the thread goes here.
         if debug:
             debug_log('killing worker...found target')
-        self._todo_queue.task_done()
+        # self._todo_queue.task_done()
 
 
     def run_search(self):

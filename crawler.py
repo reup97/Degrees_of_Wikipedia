@@ -105,8 +105,6 @@ class Crawler(object):
         all_link_tags = self._soup.find(id='bodyContent')\
                             .find_all('a', href=re.compile('^(/wiki/)((?!:).)*$'))
 
-        # links = [(link_tag.get_text().lower(), link_tag.get('href')) for link_tag in all_link_tags\
-        #          if 'href' in link_tag.attrs and link_tag.get_text() != 'ISBN']
         links = []
         for link_tag in all_link_tags:
             if 'href' in link_tag.attrs and link_tag.get_text() != 'ISBN':
