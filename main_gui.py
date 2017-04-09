@@ -8,9 +8,9 @@ Reference:
 '''
 import tkinter as tk
 from searcher import Searcher
-from log import debug_log
+from log import debug_log, log
+from settings import *
 
-debug = True
 
 
 class WikiApp(tk.Frame):
@@ -22,6 +22,7 @@ class WikiApp(tk.Frame):
         self.configure(background=self._BACKGROUND_COLOR)
         self.start_lemma_name = ''
         self.end_lemma_name = ''
+        self.max_page_limit = 0
         self.pack()
         self.create_widges()
         self._help()
@@ -40,6 +41,10 @@ class WikiApp(tk.Frame):
                                   bg=self._BACKGROUND_COLOR)
         self.start_entry = tk.Entry(self)
         self.end_entry = tk.Entry(self)
+        self.limit_label = tk.Label(self,
+                                    text='Max. Page: ',
+                                    bg=self._BACKGROUND_COLOR)
+        self.limit_entry = tk.Entry(self)
         self.start_button = tk.Button(self,
                                       text='Start',
                                       command=self.start_search,
@@ -52,6 +57,8 @@ class WikiApp(tk.Frame):
         self.start_entry.grid(row=1, column=1)
         self.end_label.grid(row=2, column=0)
         self.end_entry.grid(row=2, column=1)
+        self.limit_label.grid(row=3, column=0)
+        self.limit_entry.grid(row=3, column=1)
         self.start_button.grid(columnspan=2)
         self.result_text.grid(columnspan=2)
 
@@ -71,8 +78,7 @@ class WikiApp(tk.Frame):
                      'path': ['macbook', 'apple inc.',
                               'iphone 6s plus']}
         '''
-        if debug:
-            debug_log(result)
+        log(result)
         self.clear_text()
         self.display_text('Got it!\n')
         self.display_text('Degree: ' + str(result['degree'])+ '\n')
@@ -100,13 +106,28 @@ class WikiApp(tk.Frame):
         '''Run search.
         '''
         # start searching
+        if not self.max_page_limit:
+            wiki_searcher = Searcher(self.start_lemma_name,
+                                     self.end_lemma_name)
+        else:
+            try:
+                limit_int = int(self.max_page_limit)
+            except ValueError:
+                self.display_text('Invallid maximum limit.')
+                return
+            wiki_searcher = Searcher(self.start_lemma_name,
+                                     self.end_lemma_name,
+                                     limit_int)
+
         self.display_text('Busy searching...')
-        wiki_searcher = Searcher(self.start_lemma_name,
-                                 self.end_lemma_name)
+        log('Busy searching...')
         wiki_searcher.run_search()
         # got it, display result
-        self.show_result(wiki_searcher.get_result())
-
+        if wiki_searcher.found_target:
+            self.show_result(wiki_searcher.get_result())
+        else:
+            self.clear_text()
+            self.display_text('Search reach the maximum page limit.\n')
         # clean Entry for next search
         self.start_entry.delete(0, tk.END)
         self.end_entry.delete(0, tk.END)
@@ -119,47 +140,16 @@ class WikiApp(tk.Frame):
         # get input from Entry
         self.start_lemma_name = self.start_entry.get().strip()
         self.end_lemma_name = self.end_entry.get().strip()
-
+        self.max_page_limit = self.limit_entry.get().strip()
         # make sure both text entry has contents
         if not (self.start_lemma_name and self.end_lemma_name):
             self.display_text('Invalid input. Try again.')
             return
+
         self.do_searching()
 
-def _init():
-    '''initialize argparse.
-    '''
-    import argparse
-    parser = argparse.ArgumentParser(
-        description='Taxonomy service.',
-        formatter_class=argparse.RawTextHelpFormatter)
-
-    parser.add_argument("-d", "-debug",
-                        help="run in the debug mode",
-                        action="store_true",
-                        dest="debug")
-
-
-    parser.add_argument("--doctest",
-                        help="Run doctests instead.",
-                        action="store_true",
-                        dest="do_doctest")
-
-    return parser.parse_args()
-
-def _test():
-    '''run doctest.
-    '''
-    print("Running doctests ...")
-    import doctest
-    doctest.testmod()
-    print("... done.")
 
 if __name__ == '__main__':
-    args = _init()
-    if args.do_doctest:
-        _test()
-
     root = tk.Tk()
     root.title('Degrees Of WikiPedia')
     root.geometry('400x320')

@@ -2,8 +2,8 @@ import os
 import datetime
 import subprocess
 from log import debug_log
+from settings import * # debug
 
-debug = True
 BANK_PATH = 'graph_bank/'
 
 def write_graph(graph):

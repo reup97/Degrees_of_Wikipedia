@@ -3,7 +3,7 @@ The main entry of degrees of wikipedia.
 '''
 
 from log import log
-from searcher import Searcher
+from searcher_common import CommonAncestorsSearcher as Searcher
 from send_email import send_email
 
 
@@ -52,14 +52,14 @@ def main():
 
     while True:
         _help()
-        start_lemma_name = input('Starts at: ').strip().lower()
-        end_lemma_name = input('Ends at: ').strip().lower()
+        start1_lemma_name = input('start1 at: ').strip().lower()
+        start2_lemma_name = input('start2 at: ').strip().lower()
 
         # start searching
-        wiki_searcher = Searcher(start_lemma_name, end_lemma_name)
+        wiki_searcher = Searcher(start1_lemma_name, start2_lemma_name)
         wiki_searcher.run_search()
         # get results
-        show_result(wiki_searcher.get_result())
+        # show_result(wiki_searcher.get_result())
         # send result to my email
         if is_send_email:
             send_result()

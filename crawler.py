@@ -7,8 +7,7 @@ from urllib.error import URLError
 from urllib.request import urlopen, Request
 from bs4 import BeautifulSoup
 from log import debug_log, log
-
-debug = True
+from settings import * # debug
 
 class Crawler(object):
     '''
@@ -95,8 +94,9 @@ class Crawler(object):
 
     def get_all_links(self):
         '''get all the links in one page, aka get all edges of one node
-        Return: a list of tuples that the first element is the name and
-        the second element its the RELATIVE url.
+        Return: a list of tuples that the first element is the number of
+        links, the second element is the name and
+        the third element its the RELATIVE url.
         '''
         assert self.has_soup(), 'self._soup is None'
 

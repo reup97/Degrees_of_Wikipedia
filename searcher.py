@@ -2,32 +2,37 @@
 Searcher class
 '''
 import threading
+import networkx as nx
 from queue import Queue
+
 
 import fileio
 from crawler import Crawler
 from log import log, debug_log
+from settings import * # debug
 
-debug = True
 LOCK = threading.Lock()
 
 class Searcher(object):
     '''Searcher class
     '''
-    def __init__(self, start, end):
+    def __init__(self, start, end, max_pages=1000):
         '''
         #TODO
         '''
         self._start = start.lower().strip()
         self._end = end.lower().strip()
-
+        self._max_page = max_pages
         # stores all the names
         self._todo_queue = Queue()
 
         self._reached = dict()
         self._path = None
+        self._nx_graph = nx.Graph()
+
 
         self.found_target = False
+        self._max_limit_reached = False
 
         # # load graphs cached in the graph_bank
         # # to search faster.
@@ -57,7 +62,7 @@ class Searcher(object):
             finally:
                 LOCK.release()
 
-        while not self.found_target:
+        while not self.found_target and not self._max_limit_reached:
         # {
             # get a task
             curr_vertex_info = self._todo_queue.get()
@@ -66,6 +71,11 @@ class Searcher(object):
                 self.nodes_counter += 1
             finally:
                 LOCK.release()
+            if self.nodes_counter > self._max_page:
+                self._todo_queue.task_done()
+                self._max_limit_reached = True
+                log('Maximum page limit reached. Terminating...')
+                return
 
             if debug:
                 debug_log('##now at ({}), total {}, queue size {}##'
@@ -106,9 +116,9 @@ class Searcher(object):
             # finish current task
             self._todo_queue.task_done()
         # } end while loop
-        # Target has been found if the thread goes here.
+        # Target has been found or max limit reached if the thread goes here.
         if debug:
-            debug_log('killing worker...found target')
+            debug_log('killing worker...')
         # self._todo_queue.task_done()
 
 
@@ -130,15 +140,17 @@ class Searcher(object):
 
         # block until all workers are done
         for thr in threads:
-            debug_log('join thread [{}]'.format(thr.name))
+            if debug:
+                debug_log('join thread [{}]'.format(thr.name))
             thr.join()
 
         # program goes here iff graph search is done
-        try:
-            if self._reached[self._end]:
-                self.generate_path()
-        except KeyError:
-            log('Cannot reach {} while generating path'.format(self._end))
+        if self.found_target:
+            try:
+                if self._reached[self._end]:
+                    self.generate_path()
+            except KeyError:
+                log('Cannot reach {} while generating path'.format(self._end))
 
 
     def generate_path(self):
