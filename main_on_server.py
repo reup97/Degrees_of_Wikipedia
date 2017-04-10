@@ -24,7 +24,6 @@ def show_result(result):
     '''
     result: returned value from searcher.result()
     '''
-    # TODO: enrich result later
     log('path: ' + result['path'])
     log('degree: ' + result['degree'])
     #################

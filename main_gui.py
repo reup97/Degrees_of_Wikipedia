@@ -103,7 +103,7 @@ class WikiApp(tk.Frame):
             debug_log('call plt to show the graph...')
         # save graph as .png
         img_suffix = datetime.datetime.now().strftime('%y%m%d_%H%M%S')
-        plt.savefig('graph_img/graph_img'+img_suffix+'.img')
+        plt.savefig('graph_img/graph_img'+img_suffix+'.png')
         plt.show()
 
         # NOTE: current version of networkx has a bug here.
