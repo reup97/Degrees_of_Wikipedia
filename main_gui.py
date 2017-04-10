@@ -8,7 +8,7 @@ Reference:
 '''
 import tkinter as tk
 import networkx as nx
-from networkx.drawing.nx_pydot import write_dot
+# from networkx.drawing.nx_pydot import write_dot
 import matplotlib
 matplotlib.use("TkAgg")
 import matplotlib.pyplot as plt
@@ -103,11 +103,14 @@ class WikiApp(tk.Frame):
             debug_log('call plt to show the graph...')
         # save graph as .png
         plt.savefig("graph.png")
-        # save graph as .dot
-        nx.draw_graphviz(result['graph'])
-        write_dot(result['graph'], 'graph.dot')
-
         plt.show()
+
+        # NOTE: current version of networkx has a bug here.
+        # # save graph as .dot
+        # nx.draw_graphviz(result['graph'])
+        # write_dot(result['graph'], 'graph.dot')
+
+
         log('Done')
 
     def _help(self):
