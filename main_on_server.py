@@ -24,8 +24,8 @@ def show_result(result):
     '''
     result: returned value from searcher.result()
     '''
-    log('path: ' + result['path'])
-    log('degree: ' + result['degree'])
+    log('path: ' + str(result['path']))
+    log('degree: ' + str(result['degree']))
     #################
     ## draw  graph###
     #################
@@ -35,7 +35,7 @@ def show_result(result):
         debug_log('call plt to show the graph...')
     # save graph as .png
     img_suffix = datetime.datetime.now().strftime('%y%m%d_%H%M%S')
-    plt.savefig('graph_img/graph_img'+img_suffix+'.img')
+    plt.savefig('graph_img/graph_img'+img_suffix+'.png')
 
     # write the graph to a file
     if settings.debug:
