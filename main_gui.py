@@ -6,6 +6,7 @@ Reference:
     with some changes.
 
 '''
+import datetime
 import tkinter as tk
 import networkx as nx
 # from networkx.drawing.nx_pydot import write_dot
@@ -102,15 +103,14 @@ class WikiApp(tk.Frame):
         if settings.debug:
             debug_log('call plt to show the graph...')
         # save graph as .png
-        plt.savefig("graph.png")
+        img_suffix = datetime.datetime.now().strftime('%y%m%d_%H%M%S')
+        plt.savefig('graph_img/graph_img'+img_suffix+'.img')
         plt.show()
 
         # NOTE: current version of networkx has a bug here.
         # # save graph as .dot
         # nx.draw_graphviz(result['graph'])
         # write_dot(result['graph'], 'graph.dot')
-
-
         log('Done')
 
     def _help(self):

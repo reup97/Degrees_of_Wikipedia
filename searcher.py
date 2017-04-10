@@ -52,7 +52,7 @@ class Searcher(object):
             for killing this worker.
             '''
             log('$$found target {}({})!$$'.format(self._end,
-                                                  curr_vertex_info))
+                                                  tar))
             # modify self._end:
             LOCK.acquire()
             try:
@@ -168,6 +168,9 @@ class Searcher(object):
             if settings.debug:
                 debug_log(curr_vertex)
             path.append(curr_vertex)
+            # change edge color of the graph such that the path is different
+            # from other edges.
+            #TODO
             curr_vertex = self._reached[old_vertex]
             # this is aimed to prevent from loop in the graph
             if curr_vertex == old_vertex:
