@@ -2,7 +2,7 @@ import os
 import datetime
 import subprocess
 from log import debug_log
-from settings import * # debug
+import settings # debug
 
 BANK_PATH = 'graph_bank/'
 
@@ -20,7 +20,7 @@ def write_graph(graph):
     # latest_file_name is the file that stores the lastest
     # result.
     with open(latest_file_name, 'w') as result_file:
-        if debug:
+        if settings.debug:
             debug_log('writing path dict to file')
         result_file.write(str(graph))
 

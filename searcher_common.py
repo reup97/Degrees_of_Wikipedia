@@ -8,7 +8,7 @@ from queue import Queue
 import fileio
 from crawler import Crawler
 from log import log, debug_log
-from settings import * # debug
+import settings
 
 LOCK = threading.Lock()
 
@@ -33,7 +33,7 @@ class CommonAncestorsSearcher(object):
 
         # # load graphs cached in the graph_bank
         # # to search faster.
-        # if debug:
+        # if settings.debug:
         #     debug_log('loading all cached graphs...')
         # self._reached = fileio.read_all_graphs()
 
@@ -72,7 +72,7 @@ class CommonAncestorsSearcher(object):
                 log('Maximum page limit reached. Terminating...')
                 return
 
-            if debug:
+            if settings.debug:
                 debug_log('##now at ({}), total {}, queue size {}##'
                           .format(curr_vertex_info,
                                   self.nodes_counter,
@@ -114,7 +114,7 @@ class CommonAncestorsSearcher(object):
             self._todo_queues[num].task_done()
         # } end while loop
         # Target has been found or max limit reached if goes here.
-        if debug:
+        if settings.debug:
             debug_log('killing worker...')
 
 
@@ -149,7 +149,7 @@ class CommonAncestorsSearcher(object):
 
         # block until all workers are done
         for thr in threads1+threads2:
-            if debug:
+            if settings.debug:
                 debug_log('join thread [{}]'.format(thr.name))
             thr.join()
 
@@ -166,13 +166,13 @@ class CommonAncestorsSearcher(object):
     #     path = []
     #     while curr_vertex != self._start:
     #         old_vertex = curr_vertex
-    #         if debug:
+    #         if settings.debug:
     #             debug_log(curr_vertex)
     #         path.append(curr_vertex)
     #         curr_vertex = self._reached[old_vertex]
     #         # this is aimed to prevent from loop in the graph
     #         if curr_vertex == old_vertex:
-    #             if debug:
+    #             if settings.debug:
     #                 debug_log('current vertex[{}] == old vertex[{}]'.
     #                           format(curr_vertex, old_vertex))
     #             break
@@ -190,7 +190,7 @@ class CommonAncestorsSearcher(object):
         except TypeError:
             res['degree'] = 0
         # write the graph to a file
-        if debug:
+        if settings.debug:
             debug_log('storing graph...')
         fileio.write_graph(self._reached)
         return res

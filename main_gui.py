@@ -8,11 +8,13 @@ Reference:
 '''
 import tkinter as tk
 import networkx as nx
+from networkx.drawing.nx_pydot import write_dot
+import matplotlib
+matplotlib.use("TkAgg")
 import matplotlib.pyplot as plt
 from searcher import Searcher
 from log import debug_log, log
-from settings import *
-
+import settings
 
 
 class WikiApp(tk.Frame):
@@ -95,8 +97,18 @@ class WikiApp(tk.Frame):
         #################
         ## draw  graph###
         #################
-        nx.draw(result['graph'])
+        log('Rendering graph...')
+        nx.draw(result['graph'], node_size=50)
+        if settings.debug:
+            debug_log('call plt to show the graph...')
+        # save graph as .png
+        plt.savefig("graph.png")
+        # save graph as .dot
+        nx.draw_graphviz(result['graph'])
+        write_dot(result['graph'], 'graph.dot')
+
         plt.show()
+        log('Done')
 
     def _help(self):
         '''Show the usages of the program.
@@ -160,6 +172,7 @@ class WikiApp(tk.Frame):
 if __name__ == '__main__':
     root = tk.Tk()
     root.title('Degrees Of WikiPedia')
-    root.geometry('400x320')
+    root.geometry('800x640')
+    root['bg'] = 'white'
     app = WikiApp(master=root)
     app.mainloop()
