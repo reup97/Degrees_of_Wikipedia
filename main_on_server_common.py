@@ -14,36 +14,34 @@ from searcher_common import CommonAncestorsSearcher as Searcher
 from send_email import send_email
 
 
-
 def _help():
-    '''
-    Show the usages of the program
+    '''Show the usages of the program
     '''
     print('Welcome to Degrees_of_Wikipedia!')
     # TODO: enrich help doc later
 
+
 def show_result(result):
-    '''
-    result: returned value from searcher.result()
+    '''result: returned value from searcher.result()
     '''
     log('path1: ' + str(result['path'][0]))
     log('path2: ' + str(result['path'][1]))
     log('degree: ' + str(result['degree']))
- 
+
     #################
-    ## draw  graph###
+    # draw  graph####
     #################
     log('Rendering graphs...')
     nx.draw(result['graph1'], node_size=50)
     if settings.debug:
-        debug_log('call plt to show the graph1...')
+        debug_log('call plt to save the graph1...')
     # save graph as .png
     img_suffix = datetime.datetime.now().strftime('%y%m%d_%H%M%S')
     plt.savefig('graph_img/graph_common_img1_'+img_suffix+'.png')
 
     nx.draw(result['graph2'], node_size=50)
     if settings.debug:
-        debug_log('call plt to show the graph2...')
+        debug_log('call plt to save the graph2...')
     # save graph as .png
     plt.savefig('graph_img/graph_common_img2_'+img_suffix+'.png')
 
@@ -57,10 +55,8 @@ def show_result(result):
     fileio.write_graph(tmp_graphs)
 
 
-
 def send_result():
-    '''
-    Send result to user's email since some searching
+    '''Send result to user's email since some searching
     takes really long time
     '''
     with open('logininfo.txt', 'r') as login:
@@ -80,8 +76,7 @@ def send_result():
 
 
 def main():
-    '''
-    main entry of the program
+    '''main entry of the program
     '''
     is_send_email = input('Do you want to send the results'
                           'to your email?[Y/n]')

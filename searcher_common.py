@@ -1,6 +1,5 @@
 '''
 CommonAncestorsSearcher class
-TODO: send data back to main
 '''
 import threading
 import networkx as nx
@@ -13,12 +12,13 @@ import settings
 
 LOCK = threading.Lock()
 
+
 class CommonAncestorsSearcher(object):
     '''CommonAncestorsSearcher class
     '''
     def __init__(self, start1, start2, max_pages=1000):
         '''
-        #TODO
+        #TODO: docstring
         '''
         self._start = [start1.lower().strip(), start2.lower().strip()]
         self._max_page = max_pages
@@ -31,7 +31,8 @@ class CommonAncestorsSearcher(object):
         self._path = [None] * 2
 
         self.found_common_ancestor = False
-        self._max_limit_reached = False
+        self.max_limit_reached = False
+        self.invalid_start_point = False
 
         # # load graphs cached in the graph_bank
         # # to search faster.
@@ -43,7 +44,6 @@ class CommonAncestorsSearcher(object):
     _NUM_WORKER_THREADS = 20
     nodes_counter = 0
 
-
     def common_ancestor_found(self):
         '''Check if common ancestors are found
         Return:
@@ -54,12 +54,13 @@ class CommonAncestorsSearcher(object):
         set2 = set(self._reached[1])
         return set1 & set2
 
-
     def worker(self, num):
         '''worker which implements DFS on the graph of wikipedia.
         '''
-        while not self.found_common_ancestor and not self._max_limit_reached:
-        # {
+        while (not self.found_common_ancestor and
+               not self.max_limit_reached and
+               not self.invalid_start_point):
+            # {
             # get a task
             curr_vertex_info = self._todo_queues[num].get()
 
@@ -73,7 +74,7 @@ class CommonAncestorsSearcher(object):
                 self._todo_queues[num].task_done()
                 LOCK.acquire()
                 try:
-                    self._max_limit_reached = True
+                    self.max_limit_reached = True
                 finally:
                     LOCK.release()
                 log('Maximum page limit reached. Terminating...')
@@ -101,6 +102,13 @@ class CommonAncestorsSearcher(object):
             crawler = Crawler(start=curr_vertex_info[0],
                               relurl=curr_vertex_info[1])
             if not crawler.has_soup():
+                if self._todo_queues[num].empty():
+                    LOCK.acquire()
+                    try:
+                        self.invalid_start_point = True
+                    finally:
+                        LOCK.release()
+                    return
                 # be tolerant, go to next iteration
                 continue
 
@@ -111,16 +119,17 @@ class CommonAncestorsSearcher(object):
             # put all neighbours into _todo_queue except ones already
             # visited
             for neighbour in neighbours:
-                if (neighbour[0] not in self._reached[num]
-                        and neighbour[0] not in curr_vertex_info[0]):
+                if (neighbour[0] not in self._reached[num] and
+                        neighbour[0] not in curr_vertex_info[0]):
                     if self._reached[num][curr_vertex_info[0]] != neighbour[0]:
-                        ######### ADD LOCK #######
+                        # ADD LOCK #######
                         LOCK.acquire()
                         try:
                             #################
-                            ## update graph##
+                            # update graph##
                             #################
-                            self._nx_digraphs[num].add_edge(curr_vertex_info[0], neighbour[0])
+                            self._nx_digraphs[num].add_edge(curr_vertex_info[0],
+                                                            neighbour[0])
                             self._reached[num][neighbour[0]] = curr_vertex_info[0]
                         finally:
                             LOCK.release()
@@ -132,7 +141,6 @@ class CommonAncestorsSearcher(object):
         if settings.debug:
             debug_log('killing worker...')
 
-
     def run_search(self):
         '''Master: creates workers to do the graph search.
         '''
@@ -142,7 +150,6 @@ class CommonAncestorsSearcher(object):
 
         self._todo_queues[1].put((self._start[1], None))
         self._reached[1][self._start[1]] = self._start[1]
-
 
         # apply BFS with the help of threads
         threads1 = []
@@ -161,7 +168,6 @@ class CommonAncestorsSearcher(object):
             threads2.append(thr)
             thr.start()
 
-
         # block until all workers are done
         for thr in threads1 + threads2:
             if settings.debug:
@@ -170,9 +176,9 @@ class CommonAncestorsSearcher(object):
 
         # program goes here iff graph search is done
         if self.found_common_ancestor:
-            log('common ancestor(s) found: {}'.format(str(self._common_ancestors)))
+            log('common ancestor(s) found: {}'.format(
+                    str(self._common_ancestors)))
             self.generate_path()
-
 
     def generate_path(self):
         '''Trace back to generate path
@@ -192,11 +198,11 @@ class CommonAncestorsSearcher(object):
                 # this is aimed to prevent from loop in the graph
                 if common == old_vertex:
                     if settings.debug:
-                        debug_log('current vertex[{}] == old vertex[{}]'.
-                                format(common, old_vertex))
+                        debug_log('current vertex[{}] == \
+                               old vertex[{}]'.format(common, old_vertex))
                     break
             return path
-        
+
         # a dirty to retrieve one element from set without
         # remove it.
         one_common_node = self._common_ancestors.pop()
@@ -210,16 +216,20 @@ class CommonAncestorsSearcher(object):
         log(self._path)
         return self._path
 
-
     def get_result(self):
-        '''return a dict object containing all information
+        '''return a dict object containing all information:
+            'path': a list consisting two paths starting at
+                    each start point.
+            'degree': an integer indicates
         '''
         res = dict()
         res['path'] = self._path
+        res['degree'] = [0] * 2
         try:
-            res['degree'] = len(self._path) - 1
+            res['degree'][0] = len(self._path[0]) - 1
+            res['degree'][1] = len(self._path[1]) - 1
         except TypeError:
-            res['degree'] = 0
+            pass
         res['graph1'] = self._nx_digraphs[0]
         res['graph2'] = self._nx_digraphs[1]
         return res

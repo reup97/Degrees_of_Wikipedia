@@ -1,5 +1,6 @@
 '''
 Searcher class
+#BUG: http connection failed and _todo_queue is empty.
 '''
 import threading
 from queue import Queue
@@ -9,16 +10,18 @@ import networkx as nx
 import fileio
 from crawler import Crawler
 from log import log, debug_log
-import settings # debug
+import settings     # debug
+
 
 LOCK = threading.Lock()
+
 
 class Searcher(object):
     '''Searcher class
     '''
     def __init__(self, start, end, max_pages=1000):
         '''
-        #TODO
+        #TODO: docstring
         '''
         self._start = start.lower().strip()
         self._end = end.lower().strip()
@@ -30,9 +33,9 @@ class Searcher(object):
         self._path = None
         self._nx_digraph = nx.DiGraph()
 
-
         self.found_target = False
         self._max_limit_reached = False
+        self._invalid_start_point = False
 
         # # load graphs cached in the graph_bank
         # # to search faster.
@@ -62,8 +65,10 @@ class Searcher(object):
             finally:
                 LOCK.release()
 
-        while not self.found_target and not self._max_limit_reached:
-        # {
+        while (not self.found_target and
+               not self._max_limit_reached and
+               not self._invalid_start_point):
+            # {
             # get a task
             curr_vertex_info = self._todo_queue.get()
             LOCK.acquire()
@@ -90,7 +95,14 @@ class Searcher(object):
             crawler = Crawler(start=curr_vertex_info[0],
                               relurl=curr_vertex_info[1])
             if not crawler.has_soup():
-                # be tolerant, go to next iteration
+                if self._todo_queue.empty():
+                    LOCK.acquire()
+                    try:
+                        self._invalid_start_point = True
+                    finally:
+                        LOCK.release()
+                    return
+                # else, be tolerant, go to next iteration
                 continue
 
             # get all link information; each element in neighbours
@@ -100,16 +112,17 @@ class Searcher(object):
             # put all neighbours into _todo_queue except ones already
             # visited
             for neighbour in neighbours:
-                if (neighbour[0] not in self._reached
-                        and neighbour[0] not in curr_vertex_info[0]):
+                if (neighbour[0] not in self._reached and
+                        neighbour[0] not in curr_vertex_info[0]):
                     if self._reached[curr_vertex_info[0]] != neighbour[0]:
-                        ######### ADD LOCK #######
+                        # ADD LOCK ##########
                         LOCK.acquire()
                         try:
                             #################
-                            ## update graph##
+                            # update graph###
                             #################
-                            self._nx_digraph.add_edge(curr_vertex_info[0], neighbour[0])
+                            self._nx_digraph.add_edge(curr_vertex_info[0],
+                                                      neighbour[0])
                             self._reached[neighbour[0]] = curr_vertex_info[0]
                         finally:
                             LOCK.release()
@@ -124,7 +137,6 @@ class Searcher(object):
         if settings.debug:
             debug_log('killing worker...')
         # self._todo_queue.task_done()
-
 
     def run_search(self):
         '''Master: creates workers to do the graph search.
@@ -156,7 +168,6 @@ class Searcher(object):
             except KeyError:
                 log('Cannot reach {} while generating path'.format(self._end))
 
-
     def generate_path(self):
         '''Trace back to generate path
         Will raise a KeyError if a bad graph is parsed.
@@ -170,7 +181,7 @@ class Searcher(object):
             path.append(curr_vertex)
             # change edge color of the graph such that the path is different
             # from other edges.
-            #TODO
+            # TODO
             curr_vertex = self._reached[old_vertex]
             # this is aimed to prevent from loop in the graph
             if curr_vertex == old_vertex:
@@ -180,7 +191,6 @@ class Searcher(object):
                 break
         path.append(self._start)
         self._path = path[::-1]
-
 
     def get_result(self):
         '''return a dict object containing all information
@@ -192,7 +202,7 @@ class Searcher(object):
         except TypeError:
             res['degree'] = 0
         #####################
-        ## add graph to res##
+        # add graph to res###
         #####################
         res['graph'] = self._nx_digraph
         return res

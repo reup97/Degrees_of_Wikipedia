@@ -7,11 +7,11 @@ from urllib.error import URLError
 from urllib.request import urlopen, Request
 from bs4 import BeautifulSoup
 from log import debug_log, log
-from settings import * # debug
+from settings import *      # debug
+
 
 class Crawler(object):
-    '''
-    crawler class
+    '''crawler class
     '''
     def __init__(self, start=None, relurl=None):
         '''`relurl` can be None if the url is not known yet. Crawler
@@ -26,10 +26,9 @@ class Crawler(object):
 
         self._soup = self._make_soup()
 
-
     # class varialbes
     _BASE_RUL = 'https://en.wikipedia.org'
-    _HEADERS = {'User-Agent' : 'Mozilla/4.0 (compatible; MSIE 5.5; Windows NT)'}
+    _HEADERS = {'User-Agent': 'Mozilla/4.0 (compatible; MSIE 5.5; Windows NT)'}
 
     def has_soup(self):
         '''check if the crawler has a non-empty soup'''
@@ -113,7 +112,6 @@ class Crawler(object):
         if debug:
             debug_log('number of links: {}'.format(len(links)))
         return links
-
 
     def get_node_name(self):
         '''get the node name for the as the start name.

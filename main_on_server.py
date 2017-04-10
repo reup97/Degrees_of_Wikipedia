@@ -4,7 +4,7 @@ The main entry of degrees of wikipedia.
 import datetime
 import networkx as nx
 import matplotlib
-matplotlib.use("TkAgg")
+matplotlib.use("TkAgg")     # work around to support macos
 import matplotlib.pyplot as plt
 
 import settings
@@ -20,14 +20,14 @@ def _help():
     '''
     print('Welcome to Degrees_of_Wikipedia!')
 
+
 def show_result(result):
-    '''
-    result: returned value from searcher.result()
+    '''result: returned value from searcher.result()
     '''
     log('path: ' + str(result['path']))
     log('degree: ' + str(result['degree']))
     #################
-    ## draw  graph###
+    # draw  graph####
     #################
     log('Rendering graph...')
     nx.draw_spectral(result['graph'], node_size=50)
