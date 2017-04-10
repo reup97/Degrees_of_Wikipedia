@@ -24,5 +24,6 @@ def send_email(user, passwd, recipient, subject, body):
         print('failed to send email')
         raise e
 
+
 if __name__ == '__main__':
     pass

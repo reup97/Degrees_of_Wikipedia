@@ -90,7 +90,6 @@ class Crawler(object):
         else:
             return soup
 
-
     def get_all_links(self):
         '''get all the links in one page, aka get all edges of one node
         Return: a list of tuples that the first element is the number of

@@ -5,7 +5,6 @@ import threading
 import networkx as nx
 from queue import Queue
 
-import fileio
 from crawler import Crawler
 from log import log, debug_log
 import settings

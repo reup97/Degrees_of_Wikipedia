@@ -2,9 +2,10 @@ import os
 import datetime
 import subprocess
 from log import debug_log
-import settings # debug
+import settings     # debug
 
 BANK_PATH = 'graph_bank/'
+
 
 def write_graph(graph):
     '''write the graph to a file.
@@ -30,6 +31,7 @@ def write_graph(graph):
     filename = '_'.join([basename, suffix]) + '.txt'
     # copy the lastest result file to the graph_bank
     subprocess.run(['cp', latest_file_name, filename])
+
 
 def read_all_graphs():
     '''Read all graph files into a dictionary.

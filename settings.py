@@ -1,3 +1,4 @@
 '''Global debug mode'''
-debug =True
+
+debug = True
 show_graph = False

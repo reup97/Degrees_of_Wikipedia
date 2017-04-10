@@ -19,13 +19,13 @@ def _init():
                         action="store_true",
                         dest="debug")
 
-
     parser.add_argument("--doctest",
                         help="Run doctests instead.",
                         action="store_true",
                         dest="do_doctest")
 
     return parser.parse_args()
+
 
 def _test():
     '''
@@ -36,6 +36,7 @@ def _test():
     doctest.testmod()
     print("... done.")
 
+
 def _help():
     '''
     Show the usages of the program
@@ -43,12 +44,14 @@ def _help():
     print('Welcome to Degrees_of_Wikipedia!')
     # TODO: enrich help doc later
 
+
 def show_result(result):
     '''
     result: returned value from searcher.result()
     '''
     # TODO: enrich result later
     print(result)
+
 
 def main():
     '''
@@ -74,6 +77,7 @@ def main():
 
         if keystroke == 'q':
             break
+
 
 def test_main():
     '''

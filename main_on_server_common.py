@@ -93,7 +93,8 @@ def main():
         max_pages_limit = int(max_pages_limit)
 
         # start searching
-        wiki_searcher = Searcher(start1_lemma_name, start2_lemma_name, max_pages_limit)
+        wiki_searcher = Searcher(start1_lemma_name, start2_lemma_name,
+                                 max_pages_limit)
         wiki_searcher.run_search()
         # get results
         show_result(wiki_searcher.get_result())
@@ -104,6 +105,7 @@ def main():
         keystroke = input('press any key to continue, q to quick: ')
         if keystroke == 'q':
             break
+
 
 if __name__ == '__main__':
     main()

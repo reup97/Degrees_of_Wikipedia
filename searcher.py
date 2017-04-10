@@ -7,7 +7,6 @@ from queue import Queue
 import networkx as nx
 
 
-import fileio
 from crawler import Crawler
 from log import log, debug_log
 import settings     # debug
