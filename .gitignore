@@ -3,6 +3,7 @@
 *.png
 graph_bank
 graph_img
+.vscode
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
