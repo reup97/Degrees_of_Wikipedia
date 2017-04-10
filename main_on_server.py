@@ -1,9 +1,15 @@
 '''
 The main entry of degrees of wikipedia.
 '''
+import datetime
+import networkx as nx
+import matplotlib
+matplotlib.use("TkAgg")
+import matplotlib.pyplot as plt
 
-from log import log
+import settings
 from searcher import Searcher
+from log import log, debug_log
 from send_email import send_email
 
 
@@ -19,7 +25,19 @@ def show_result(result):
     result: returned value from searcher.result()
     '''
     # TODO: enrich result later
-    print(result)
+    log('path: ' + result['path'])
+    log('degree: ' + result['degree'])
+    #################
+    ## draw  graph###
+    #################
+    log('Rendering graph...')
+    nx.draw(result['graph'], node_size=50)
+    if settings.debug:
+        debug_log('call plt to show the graph...')
+    # save graph as .png
+    img_suffix = datetime.datetime.now().strftime('%y%m%d_%H%M%S')
+    plt.savefig('graph_img/graph_img'+img_suffix+'.img')
+
 
 def send_result():
     '''

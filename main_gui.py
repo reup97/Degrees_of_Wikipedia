@@ -9,7 +9,6 @@ Reference:
 import datetime
 import tkinter as tk
 import networkx as nx
-# from networkx.drawing.nx_pydot import write_dot
 import matplotlib
 matplotlib.use("TkAgg")
 import matplotlib.pyplot as plt
