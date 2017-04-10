@@ -15,6 +15,7 @@ import matplotlib.pyplot as plt
 from searcher import Searcher
 from log import debug_log, log
 import settings
+import fileio
 
 
 class WikiApp(tk.Frame):
@@ -77,11 +78,12 @@ class WikiApp(tk.Frame):
         self.result_text.delete(1.0, tk.END)
 
     def show_result(self, result):
-        '''result: returned value from searcher.result()
-                Ex: {'degree': 2,
-                     'path': ['macbook', 'apple inc.',
-                              'iphone 6s plus']
-                     'graph':networkx.classes.digraph.Digraph
+        '''show summary result, render graph, and store graph files.
+           result: returned value from searcher.result()
+                    Ex: {'degree': 2,
+                            'path': ['macbook', 'apple inc.',
+                                    'iphone 6s plus']
+                            'graph':networkx.classes.digraph.Digraph
         '''
         log(result)
         self.clear_text()
@@ -105,6 +107,12 @@ class WikiApp(tk.Frame):
         img_suffix = datetime.datetime.now().strftime('%y%m%d_%H%M%S')
         plt.savefig('graph_img/graph_img'+img_suffix+'.png')
         plt.show()
+
+        # write the graph to a file
+        if settings.debug:
+            debug_log('storing graph...')
+        fileio.write_graph(result['graph'].nodes())
+        fileio.write_graph(result['graph'].edges())
 
         # NOTE: current version of networkx has a bug here.
         # # save graph as .dot

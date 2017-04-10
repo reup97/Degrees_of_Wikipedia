@@ -195,8 +195,4 @@ class Searcher(object):
         ## add graph to res##
         #####################
         res['graph'] = self._nx_digraph
-        # write the graph to a file
-        if settings.debug:
-            debug_log('storing graph...')
-        fileio.write_graph(self._reached)
         return res

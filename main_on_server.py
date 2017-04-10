@@ -8,6 +8,7 @@ matplotlib.use("TkAgg")
 import matplotlib.pyplot as plt
 
 import settings
+import fileio
 from searcher import Searcher
 from log import log, debug_log
 from send_email import send_email
@@ -18,7 +19,6 @@ def _help():
     Show the usages of the program
     '''
     print('Welcome to Degrees_of_Wikipedia!')
-    # TODO: enrich help doc later
 
 def show_result(result):
     '''
@@ -36,6 +36,12 @@ def show_result(result):
     # save graph as .png
     img_suffix = datetime.datetime.now().strftime('%y%m%d_%H%M%S')
     plt.savefig('graph_img/graph_img'+img_suffix+'.img')
+
+    # write the graph to a file
+    if settings.debug:
+        debug_log('storing graph...')
+    fileio.write_graph(str(result['graph'].nodes()) +
+                       '\n' + str(result['graph'].edges()))
 
 
 def send_result():
