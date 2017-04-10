@@ -7,11 +7,13 @@ Reference:
 
 '''
 import datetime
+import subprocess
 import tkinter as tk
 import networkx as nx
 import matplotlib
 matplotlib.use("TkAgg")
 import matplotlib.pyplot as plt
+from networkx.drawing.nx_agraph import write_dot
 from searcher import Searcher
 from log import debug_log, log
 import settings
@@ -100,20 +102,27 @@ class WikiApp(tk.Frame):
         ## draw  graph###
         #################
         log('Rendering graph...')
-        nx.draw(result['graph'], node_size=50)
-        if settings.debug:
-            debug_log('call plt to show the graph...')
-        # save graph as .png
+        nx.draw_spectral(result['graph'], node_size=50)
+        
+        # nx.draw(result['graph'], node_size=50)
         img_suffix = datetime.datetime.now().strftime('%y%m%d_%H%M%S')
-        plt.savefig('graph_img/graph_img'+img_suffix+'.png')
-        plt.show()
-
+        img_name = 'graph_img/graph_img' + img_suffix
+        dot_name = img_name +'.dot'
+        if settings.debug:
+            debug_log('generating .dot file...')
+        write_dot(result['graph'], dot_name)
+     
+        if settings.debug:
+            debug_log('generating .png file from .dot file...')
+        # save graph as .png
+        subprocess.run(['dot', '-Tpng', '-O', dot_name])
         # write the graph to a file
         if settings.debug:
             debug_log('storing graph...')
         fileio.write_graph(result['graph'].nodes())
         fileio.write_graph(result['graph'].edges())
 
+        plt.show()
         # NOTE: current version of networkx has a bug here.
         # # save graph as .dot
         # nx.draw_graphviz(result['graph'])

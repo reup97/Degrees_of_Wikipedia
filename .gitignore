@@ -1,6 +1,8 @@
 *.txt
 *.swp
 *.png
+graph_bank
+graph_img
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

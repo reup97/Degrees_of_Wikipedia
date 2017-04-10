@@ -30,7 +30,7 @@ def show_result(result):
     ## draw  graph###
     #################
     log('Rendering graph...')
-    nx.draw(result['graph'], node_size=50)
+    nx.draw_spectral(result['graph'], node_size=50)
     if settings.debug:
         debug_log('call plt to show the graph...')
     # save graph as .png

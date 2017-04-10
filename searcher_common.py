@@ -3,6 +3,7 @@ CommonAncestorsSearcher class
 TODO: send data back to main
 '''
 import threading
+import networkx as nx
 from queue import Queue
 
 import fileio
@@ -24,9 +25,10 @@ class CommonAncestorsSearcher(object):
         # stores all the names
         self._todo_queues = [Queue(), Queue()]
         self._reached = [dict(), dict()]
+        self._nx_digraphs = [nx.DiGraph(), nx.DiGraph()]
         self._common_ancestors = set()
 
-        self._path = None
+        self._path = [None] * 2
 
         self.found_common_ancestor = False
         self._max_limit_reached = False
@@ -41,20 +43,21 @@ class CommonAncestorsSearcher(object):
     _NUM_WORKER_THREADS = 20
     nodes_counter = 0
 
+
+    def common_ancestor_found(self):
+        '''Check if common ancestors are found
+        Return:
+            a set of common ancestors if common ancesotrs are found;
+            empty set otherwise.
+        '''
+        set1 = set(self._reached[0])
+        set2 = set(self._reached[1])
+        return set1 & set2
+
+
     def worker(self, num):
         '''worker which implements DFS on the graph of wikipedia.
         '''
-        def common_ancestor_found():
-            '''Check if common ancestors are found
-            Return:
-                a set of common ancestors if common ancesotrs are found;
-                empty set otherwise.
-            '''
-            set1 = set(self._reached[0])
-            set2 = set(self._reached[1])
-            return set1 & set2
-
-
         while not self.found_common_ancestor and not self._max_limit_reached:
         # {
             # get a task
@@ -68,7 +71,11 @@ class CommonAncestorsSearcher(object):
 
             if self.nodes_counter > self._max_page:
                 self._todo_queues[num].task_done()
-                self._max_limit_reached = True
+                LOCK.acquire()
+                try:
+                    self._max_limit_reached = True
+                finally:
+                    LOCK.release()
                 log('Maximum page limit reached. Terminating...')
                 return
 
@@ -79,10 +86,14 @@ class CommonAncestorsSearcher(object):
                                   self._todo_queues[num].qsize()))
 
             # check if the common ancestors are found
-            common_ancestors = common_ancestor_found()
+            common_ancestors = self.common_ancestor_found()
             if common_ancestors:
-                self.found_common_ancestor = True
-                self._common_ancestors = common_ancestors
+                LOCK.acquire()
+                try:
+                    self.found_common_ancestor = True
+                    self._common_ancestors = common_ancestors
+                finally:
+                    LOCK.release()
                 self._todo_queues[num].task_done()
                 return
 
@@ -106,6 +117,10 @@ class CommonAncestorsSearcher(object):
                         ######### ADD LOCK #######
                         LOCK.acquire()
                         try:
+                            #################
+                            ## update graph##
+                            #################
+                            self._nx_digraphs[num].add_edge(curr_vertex_info[0], neighbour[0])
                             self._reached[num][neighbour[0]] = curr_vertex_info[0]
                         finally:
                             LOCK.release()
@@ -143,12 +158,12 @@ class CommonAncestorsSearcher(object):
             thr = threading.Thread(target=self.worker, args=(1,))
             # make sure the thread will eventually exit!
             thr.deamon = True
-            threads1.append(thr)
+            threads2.append(thr)
             thr.start()
 
 
         # block until all workers are done
-        for thr in threads1+threads2:
+        for thr in threads1 + threads2:
             if settings.debug:
                 debug_log('join thread [{}]'.format(thr.name))
             thr.join()
@@ -156,28 +171,44 @@ class CommonAncestorsSearcher(object):
         # program goes here iff graph search is done
         if self.found_common_ancestor:
             log('common ancestor(s) found: {}'.format(str(self._common_ancestors)))
+            self.generate_path()
 
 
-    # def generate_path(self):
-    #     '''Trace back to generate path
-    #     Will raise a KeyError if a bad graph is parsed.
-    #     '''
-    #     curr_vertex = self._end
-    #     path = []
-    #     while curr_vertex != self._start:
-    #         old_vertex = curr_vertex
-    #         if settings.debug:
-    #             debug_log(curr_vertex)
-    #         path.append(curr_vertex)
-    #         curr_vertex = self._reached[old_vertex]
-    #         # this is aimed to prevent from loop in the graph
-    #         if curr_vertex == old_vertex:
-    #             if settings.debug:
-    #                 debug_log('current vertex[{}] == old vertex[{}]'.
-    #                           format(curr_vertex, old_vertex))
-    #             break
-    #     path.append(self._start)
-    #     self._path = path[::-1]
+    def generate_path(self):
+        '''Trace back to generate path
+        Will raise a KeyError if a bad graph is parsed.
+        '''
+
+        def looking_for_path(common, num):
+            '''trace back to find the path.
+            '''
+            path = []
+            while common != self._start[num]:
+                old_vertex = common
+                if settings.debug:
+                    debug_log(common)
+                path.append(common)
+                common = self._reached[num][old_vertex]
+                # this is aimed to prevent from loop in the graph
+                if common == old_vertex:
+                    if settings.debug:
+                        debug_log('current vertex[{}] == old vertex[{}]'.
+                                format(common, old_vertex))
+                    break
+            return path
+        
+        # a dirty to retrieve one element from set without
+        # remove it.
+        one_common_node = self._common_ancestors.pop()
+        self._common_ancestors.add(one_common_node)
+
+        path1 = looking_for_path(one_common_node, 0)
+        path1.append(self._start[0])
+        path2 = looking_for_path(one_common_node, 1)
+        path2.append(self._start[1])
+        self._path = [path1[::-1], path2[::-1]]
+        log(self._path)
+        return self._path
 
 
     def get_result(self):
@@ -189,8 +220,6 @@ class CommonAncestorsSearcher(object):
             res['degree'] = len(self._path) - 1
         except TypeError:
             res['degree'] = 0
-        # write the graph to a file
-        if settings.debug:
-            debug_log('storing graph...')
-        fileio.write_graph(self._reached)
+        res['graph1'] = self._nx_digraphs[0]
+        res['graph2'] = self._nx_digraphs[1]
         return res

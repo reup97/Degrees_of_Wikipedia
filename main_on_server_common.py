@@ -1,10 +1,18 @@
 '''
 The main entry of degrees of wikipedia.
 '''
+import datetime
+import networkx as nx
+import matplotlib
+matplotlib.use("TkAgg")
+import matplotlib.pyplot as plt
 
-from log import log
+import settings
+import fileio
+from log import log, debug_log
 from searcher_common import CommonAncestorsSearcher as Searcher
 from send_email import send_email
+
 
 
 def _help():
@@ -18,8 +26,37 @@ def show_result(result):
     '''
     result: returned value from searcher.result()
     '''
-    # TODO: enrich result later
-    print(result)
+    log('path1: ' + str(result['path'][0]))
+    log('path2: ' + str(result['path'][1]))
+    log('degree: ' + str(result['degree']))
+ 
+    #################
+    ## draw  graph###
+    #################
+    log('Rendering graphs...')
+    nx.draw(result['graph1'], node_size=50)
+    if settings.debug:
+        debug_log('call plt to show the graph1...')
+    # save graph as .png
+    img_suffix = datetime.datetime.now().strftime('%y%m%d_%H%M%S')
+    plt.savefig('graph_img/graph_common_img1_'+img_suffix+'.png')
+
+    nx.draw(result['graph2'], node_size=50)
+    if settings.debug:
+        debug_log('call plt to show the graph2...')
+    # save graph as .png
+    plt.savefig('graph_img/graph_common_img2_'+img_suffix+'.png')
+
+    # write the graph to a file
+    if settings.debug:
+        debug_log('storing graph...')
+    tmp_graphs = (str(result['graph1'].nodes()) + '\n' +
+                  str(result['graph1'].edges()) + '\n' +
+                  str(result['graph2'].nodes()) + '\n' +
+                  str(result['graph2'].edges()))
+    fileio.write_graph(tmp_graphs)
+
+
 
 def send_result():
     '''
@@ -54,12 +91,18 @@ def main():
         _help()
         start1_lemma_name = input('start1 at: ').strip().lower()
         start2_lemma_name = input('start2 at: ').strip().lower()
+        max_pages_limit = input('Max page limit: ').strip()
+        while not max_pages_limit.isdigit():
+            log('max page limit needs to be a integer.')
+            max_pages_limit = input('Max page limit: ').strip()
+        max_pages_limit = int(max_pages_limit)
 
         # start searching
-        wiki_searcher = Searcher(start1_lemma_name, start2_lemma_name)
+        wiki_searcher = Searcher(start1_lemma_name, start2_lemma_name, max_pages_limit)
         wiki_searcher.run_search()
         # get results
-        # show_result(wiki_searcher.get_result())
+        show_result(wiki_searcher.get_result())
+
         # send result to my email
         if is_send_email:
             send_result()
