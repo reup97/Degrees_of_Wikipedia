@@ -35,6 +35,9 @@ class Crawler(object):
         return self._soup is not None
 
     def generate_full_url(self):
+        '''generate full url of a given relative url.
+        O(n) since the encode and decode are linear.
+        '''
         url = self._BASE_RUL + '/wiki/' + self._start
         # get rid of non-ascii characters by encode + decode
         url = url.encode('ascii', 'ignore').decode('ascii')
@@ -95,6 +98,7 @@ class Crawler(object):
         Return: a list of tuples that the first element is the number of
         links, the second element is the name and
         the third element its the RELATIVE url.
+        O(n) where n is approximately the size of the HTML tree.
         '''
         assert self.has_soup(), 'self._soup is None'
 
@@ -113,13 +117,13 @@ class Crawler(object):
             if 'href' in link_tag.attrs and link_tag.get_text() != 'ISBN':
                 links.append((link_tag.get_text().lower(),
                               link_tag.get('href')))
-
         if settings.debug:
             debug_log('number of links: {}'.format(len(links)))
         return links
 
     def get_node_name(self):
         '''get the node name for the as the start name.
+        O(n) where n is the approximately the size of HTML tree.
         '''
         try:
             title_node = self._soup.find(id="firstHeading")

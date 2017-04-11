@@ -45,6 +45,7 @@ class CommonAncestorsSearcher(object):
 
     def common_ancestor_found(self):
         '''Check if common ancestors are found
+        running time: linear because of the constructor of set() 
         Return:
             a set of common ancestors if common ancesotrs are found;
             empty set otherwise.
@@ -55,6 +56,10 @@ class CommonAncestorsSearcher(object):
 
     def worker(self, num):
         '''worker which implements DFS on the graph of wikipedia.
+            running time: technically O(|E|+|V|) where |E| is the length
+            of all edges and |V| is the length of all vertices, and thus
+            the todo_queue are accumulated faster than the speed of graph
+            parsing.
         '''
         while (not self.found_common_ancestor and
                not self.max_limit_reached and
@@ -142,6 +147,7 @@ class CommonAncestorsSearcher(object):
 
     def run_search(self):
         '''Master: creates workers to do the graph search.
+            running time: O(n) where n is the number of thread.
         '''
         # initialize bfs
         self._todo_queues[0].put((self._start[0], None))
@@ -182,8 +188,10 @@ class CommonAncestorsSearcher(object):
     def generate_path(self):
         '''Trace back to generate path
         Will raise a KeyError if a bad graph is parsed.
+            Running time: O(log(n)) where n is the number of nodes
+            in the graph already parsed. Here we assume that every
+            node has same number of children on average.
         '''
-
         def looking_for_path(common, num):
             '''trace back to find the path.
             '''
