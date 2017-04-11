@@ -7,7 +7,7 @@ from urllib.error import URLError
 from urllib.request import urlopen, Request
 from bs4 import BeautifulSoup
 from log import debug_log, log
-from settings import *      # debug
+import settings
 
 
 class Crawler(object):
@@ -21,7 +21,7 @@ class Crawler(object):
         '''
         self._start = start
         self._url = self._BASE_RUL + relurl if relurl is not None else None
-        if debug:
+        if settings.debug:
             debug_log(self._url)
 
         self._soup = self._make_soup()
@@ -51,7 +51,7 @@ class Crawler(object):
         try:
             if self._url is None:
                 self._url = self.generate_full_url()
-                if debug:
+                if settings.debug:
                     debug_log('get request...')
                     debug_log('url is {}'.format(self._url))
 
@@ -62,7 +62,7 @@ class Crawler(object):
         except URLError as e:
             err_msg = 'Cannot open the page with name {}: {}'.format(
                 self._start, e)
-            if debug:
+            if settings.debug:
                 debug_log(err_msg)
             log(err_msg)
             return None
@@ -74,7 +74,7 @@ class Crawler(object):
             # not be a reasonable keyword to search.
             err_msg = 'Cannot open the page with name {}: {}'.format(
                 self._start, e)
-            if debug:
+            if settings.debug:
                 debug_log(err_msg)
             log(err_msg)
             return None
@@ -82,7 +82,7 @@ class Crawler(object):
         except http.client.BadStatusLine as e:
             err_msg = 'Cannot open the page with name {}: {}'.format(
                 self._start, e)
-            if debug:
+            if settings.debug:
                 debug_log(err_msg)
             log(err_msg)
             return None
@@ -101,14 +101,20 @@ class Crawler(object):
         # valid urls need to be in this format: start with /wiki/ and
         # not contain `:`.
         all_link_tags = self._soup.find(id='bodyContent')\
-                            .find_all('a', href=re.compile('^(/wiki/)((?!:).)*$'))
+                            .find_all('a',
+                                      href=re.compile('^(/wiki/)((?!:).)*$'))
+        # invalid: aaa/wiki/
+        # /wiki/aaa:bbb:
+        # valid : /wiki/apple_pie
+        # valie : /wiki/fruit/apple (not likely to occur)
 
         links = []
         for link_tag in all_link_tags:
             if 'href' in link_tag.attrs and link_tag.get_text() != 'ISBN':
-                links.append((link_tag.get_text().lower(), link_tag.get('href')))
+                links.append((link_tag.get_text().lower(),
+                              link_tag.get('href')))
 
-        if debug:
+        if settings.debug:
             debug_log('number of links: {}'.format(len(links)))
         return links
 
@@ -123,12 +129,12 @@ class Crawler(object):
 
         except ValueError as e:
             log('Wikipedia change their DOM!')
-            if debug:
+            if settings.debug:
                 debug_log(e)
             return None
         except Exception as e:
             log('iternal error detected')
-            if debug:
+            if settings.debug:
                 debug_log(e)
             return None
         else:

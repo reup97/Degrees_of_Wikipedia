@@ -58,17 +58,22 @@ class WikiApp(tk.Frame):
                                       text='Start',
                                       command=self.start_search,
                                       bg=self._BACKGROUND_COLOR)
+        self.exit_button = tk.Button(self,
+                                     text="Exit",
+                                     command=root.destroy,
+                                     bg=self._BACKGROUND_COLOR)
         self.result_text = tk.Text(self, width=40, height=10,
                                    bg=self._BACKGROUND_COLOR)
         # add widges to frame
-        self.welcome_label.grid(columnspan=2)
+        self.welcome_label.grid(columnspan=4)
         self.start_label.grid(row=1, column=0)
-        self.start_entry.grid(row=1, column=1)
+        self.start_entry.grid(row=1, column=1, columnspan=3)
         self.end_label.grid(row=2, column=0)
-        self.end_entry.grid(row=2, column=1)
+        self.end_entry.grid(row=2, column=1, columnspan=3)
         self.limit_label.grid(row=3, column=0)
-        self.limit_entry.grid(row=3, column=1)
-        self.start_button.grid(columnspan=2)
+        self.limit_entry.grid(row=3, column=1, columnspan=3)
+        self.start_button.grid(row=4, column=1)
+        self.exit_button.grid(row=4, column=2, sticky=tk.W)
         self.result_text.grid(columnspan=2)
 
     def display_text(self, content):
@@ -104,7 +109,7 @@ class WikiApp(tk.Frame):
         log('Rendering graph...')
         # nx.draw_spring(nx_graph, node_size=50)
         ###################################################
-        # Experiments: change color of node[ok] and path###
+        # change color of node[ok] and path###
         ###################################################
         start_node = path_list[0]
         end_node = path_list[-1]
@@ -168,12 +173,12 @@ class WikiApp(tk.Frame):
         '''Show the usages of the program.
         '''
         helptext = ('Welome to degrees of wikipedia!\n'
-                    'There is a well-known idea called "six degrees of separation": '
-                    'everything in this world can be connected by 6 steps or less '
-                    'with others. This program simulates this thory in the world of '
-                    'Wikipedia.\n'
-                    'To find the relation between two words, enter them in the \'Start\' '
-                    'and \'End\' entry.')
+                    'There is a well-known idea called "six degrees of '
+                    'separation": everything in this world can be connected '
+                    'by 6 steps or less with others. This program simulates '
+                    'this thory in the world of Wikipedia.\n'
+                    'To find the relation between two words, enter them in '
+                    'the \'Start\'(\'Start1\') and \'End\'(\'Start2\') entry.')
         self.display_text(helptext)
 
     def do_searching(self):
@@ -254,17 +259,22 @@ class WikiCommonAncestorsApp(WikiApp):
                                       text='Start',
                                       command=self.start_search,
                                       bg=self._BACKGROUND_COLOR)
+        self.exit_button = tk.Button(self,
+                                     text="Exit",
+                                     command=root.destroy,
+                                     bg=self._BACKGROUND_COLOR)
         self.result_text = tk.Text(self, width=40, height=10,
                                    bg=self._BACKGROUND_COLOR)
         # add widges to frame
-        self.welcome_label.grid(columnspan=2)
+        self.welcome_label.grid(columnspan=4)
         self.start1_label.grid(row=1, column=0)
-        self.start1_entry.grid(row=1, column=1)
+        self.start1_entry.grid(row=1, column=1, columnspan=3)
         self.start2_label.grid(row=2, column=0)
-        self.start2_entry.grid(row=2, column=1)
-        self.limit_label.grid(row=3, column=0)
-        self.limit_entry.grid(row=3, column=1)
-        self.start_button.grid(columnspan=2)
+        self.start2_entry.grid(row=2, column=1, columnspan=3)
+        self.limit_label.grid(row=3, column=0, stick=tk.E)
+        self.limit_entry.grid(row=3, column=1, columnspan=3)
+        self.start_button.grid(row=4, column=1)
+        self.exit_button.grid(row=4, column=2, sticky=tk.W)
         self.result_text.grid(columnspan=2)
 
     def show_result(self, result):
@@ -290,7 +300,7 @@ class WikiCommonAncestorsApp(WikiApp):
             if i != len(res_path1) - 1:
                 self.display_text(' --> ')
 
-        for (j, node) in enumerate(res_path2):
+        for (j, node) in enumerate(res_path2[::-1]):
             self.display_text(node)
             if j != len(res_path2) - 1:
                 self.display_text(' <-- ')

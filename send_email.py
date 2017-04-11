@@ -1,4 +1,5 @@
 def send_email(user, passwd, recipient, subject, body):
+    # a function to send email.
     import smtplib
 
     gmail_user = user
