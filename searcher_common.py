@@ -45,7 +45,7 @@ class CommonAncestorsSearcher(object):
 
     def common_ancestor_found(self):
         '''Check if common ancestors are found
-        running time: linear because of the constructor of set() 
+        running time: linear because of the constructor of set()
         Return:
             a set of common ancestors if common ancesotrs are found;
             empty set otherwise.
@@ -130,7 +130,7 @@ class CommonAncestorsSearcher(object):
                         LOCK.acquire()
                         try:
                             #################
-                            # update graph##
+                            # update graph###
                             #################
                             self._nx_digraphs[num].add_edge(curr_vertex_info[0],
                                                             neighbour[0])
@@ -239,4 +239,5 @@ class CommonAncestorsSearcher(object):
             pass
         res['graph1'] = self._nx_digraphs[0]
         res['graph2'] = self._nx_digraphs[1]
+        res['common_ancestors'] = self._common_ancestors
         return res

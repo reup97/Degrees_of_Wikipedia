@@ -1,11 +1,12 @@
 '''
 A GUI wrapper class of degrees of wikipedia
 Reference:
-    The skeleton of this program is form this
-    link[https://docs.python.org/3/library/tkinter.html#tkinter-life-preserver]
-    with some changes.
-
+The skeleton of this program is form this
+link[https://docs.python.org/3/library/tkinter.html#tkinter-life-preserver]
+with some changes.
 '''
+
+
 import datetime
 import subprocess
 import tkinter as tk
@@ -300,10 +301,17 @@ class WikiCommonAncestorsApp(WikiApp):
             if i != len(res_path1) - 1:
                 self.display_text(' --> ')
 
-        for (j, node) in enumerate(res_path2[::-1]):
-            self.display_text(node)
+        for (j, node) in enumerate(res_path2[-2::-1]):
             if j != len(res_path2) - 1:
                 self.display_text(' <-- ')
+            self.display_text(node)
+        # show all common ancestors
+        self.display_text('\n==================\n')
+        self.display_text('Common ancestors are:\n')
+        for com_ast in result['common_ancestors']:
+            self.display_text(com_ast)
+            self.display_text(' ')
+
         figure1 = plt.figure(0)
         self.render(result['graph1'], res_path1, figure=figure1)
         figure2 = plt.figure(1)
@@ -329,6 +337,10 @@ class WikiCommonAncestorsApp(WikiApp):
 
         self.display_text('Busy searching...')
         log('Busy searching...')
+        # clean Entry for next search
+        self.start1_entry.delete(0, tk.END)
+        self.start2_entry.delete(0, tk.END)
+
         wiki_searcher.run_search()
         # got it, display result
         if wiki_searcher.found_common_ancestor:
@@ -339,10 +351,6 @@ class WikiCommonAncestorsApp(WikiApp):
                 self.display_text('Invalid start point.')
             else:
                 self.display_text('Search reach the maximum page limit.\n')
-
-        # clean Entry for next search
-        self.start1_entry.delete(0, tk.END)
-        self.start2_entry.delete(0, tk.END)
 
     def start_search(self):
         '''main entry of the program: get and check inputs.
